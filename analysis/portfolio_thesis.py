@@ -5,32 +5,12 @@ CORE_PORTFOLIO = {
     "PL": {
         "name": "Planet Labs",
         "sector": "space",
-        "thesis": "US space tech dominance for Indo-Pacific surveillance & defense",
-        "hypothesis_link": "H3",  # Industrial supply chain
-        "signal_exposure": ["D", "B"],  # Taiwan integration, tariff pressure
+        "thesis": "Geopolitical tension drives AI satellite imagery demand (defense/surveillance)",
+        "hypothesis_link": "D-axis",  # Geopolitical tension hedge
+        "signal_exposure": ["D"],  # Taiwan/geopolitical tension
         "current_price": 30.44,
         "current_return_%": 98.96,
-        "failure_signal": "Defense budget cuts OR competitor tech breakthrough",
-    },
-    "IONQ": {
-        "name": "IonQ",
-        "sector": "technology",
-        "thesis": "US quantum computing leadership in strategic tech war",
-        "hypothesis_link": "H3",
-        "signal_exposure": ["B"],  # Tech export controls
-        "current_price": 61.32,
-        "current_return_%": 9.48,
-        "failure_signal": "China quantum computing breakthrough OR US chip export easing",
-    },
-    "HOOD": {
-        "name": "Robinhood Markets",
-        "sector": "finance",
-        "thesis": "USD hegemony reinforced via US financial platform dominance",
-        "hypothesis_link": "H2",  # Monetary hegemony
-        "signal_exposure": ["A"],  # USD strength direct impact
-        "current_price": None,
-        "current_return_%": 30.95,
-        "failure_signal": "Dollar weakness OR US financial regulation tightening",
+        "failure_signal": "Détente / de-escalation OR competitor satellite tech breakthrough",
     },
     "COPX": {
         "name": "Copper Miners ETF",
@@ -77,6 +57,20 @@ CORE_PORTFOLIO = {
 }
 
 SATELLITE_PORTFOLIO = {
+    "HOOD": {
+        "name": "Robinhood Markets",
+        "sector": "finance",
+        "thesis": "Personal judgment - crypto adoption + US domestic political tailwind (NOT decoupling thesis)",
+        "status": "SATELLITE (Excluded from hypothesis validation)",
+        "current_return_%": 30.95,
+    },
+    "IONQ": {
+        "name": "IonQ",
+        "sector": "technology",
+        "thesis": "Personal judgment - standalone quantum computing bet (NOT decoupling thesis)",
+        "status": "SATELLITE (Excluded from hypothesis validation)",
+        "current_return_%": 9.48,
+    },
     "BMNR": {
         "name": "Bitmine",
         "sector": "crypto",

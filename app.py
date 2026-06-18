@@ -25,7 +25,7 @@ st.set_page_config(
 )
 
 st.title("🌍 Petrodollar Hegemony Analysis Dashboard")
-st.markdown("**Thesis:** US Dollar Hegemony Reinforcement Under Trump Administration")
+st.markdown("**Thesis:** Structural US-China Supply Chain Decoupling (Energy + Geopolitical Tension)")
 
 st.divider()
 
@@ -177,15 +177,16 @@ with tab4:
     
     st.write("""
     **Initial Hypothesis (Fixed):**
-    Trump administration concentrates military-economic power in Indo-Pacific to:
-    1. Restructure China's economy (production → consumption)
-    2. Decouple energy & supply chains from China
-    3. Reinforce USD hegemony
-    4. Integrate Taiwan into US supply chain
+    Trump's China pressure is a structural supply-chain decoupling, not a one-off trade war.
+    Two tradeable mechanisms:
+    1. **F-axis:** Energy/materials supply chain realignment (COPX, TSES, TSNF)
+    2. **D-axis:** Persistent geopolitical tension → surveillance/defense demand (PL)
+    
+    Dollar hegemony & broader macro framing = background context, NOT direct signals.
     
     **Portfolio Thesis:**
-    Core 7 positions directly expose to these macro signals.
-    Satellite 2 positions excluded from hypothesis validation.
+    Core 5 positions expose to validated signals (B, D, F, H).
+    Satellite 4 positions (HOOD, IONQ, BMNR, RXRX) excluded from validation.
     """)
     
     st.divider()
@@ -246,9 +247,9 @@ with tab4:
     st.divider()
     
     # 2. Signal Validation
-    st.subheader("📈 Signal Validation (5 Macro Indicators)")
+    st.subheader("📈 Signal Validation (4 Macro Indicators)")
     
-    for signal_id in ["A", "B", "D", "F", "H"]:
+    for signal_id in ["B", "D", "F", "H"]:
         sig = validation_result['signals'][signal_id]
         
         col_left, col_right = st.columns([3, 1])
@@ -288,7 +289,7 @@ with tab4:
     col_core, col_sat = st.columns(2)
     
     with col_core:
-        st.write("**CORE (Thesis-Driven):** 7 positions")
+        st.write("**CORE (Thesis-Driven):** 5 positions")
         core_tickers = list(CORE_PORTFOLIO.keys())
         for ticker in core_tickers:
             status = "✓" if CORE_PORTFOLIO[ticker].get("status", "ACTIVE") == "ACTIVE" else "✗"
@@ -296,7 +297,7 @@ with tab4:
             st.write(f"{status} {ticker}: {ret}%")
     
     with col_sat:
-        st.write("**SATELLITE (Personal):** 2 positions (Excluded)")
+        st.write("**SATELLITE (Personal):** 4 positions (Excluded)")
         for ticker, info in SATELLITE_PORTFOLIO.items():
             st.write(f"• {ticker}: {info['current_return_%']}% (Not validated)")
     
@@ -309,9 +310,9 @@ with tab4:
     st.divider()
     
     # 2. Signal Validation
-    st.subheader("📈 Signal Validation (5 Macro Indicators)")
+    st.subheader("📈 Signal Validation (4 Macro Indicators)")
     
-    for signal_id in ["A", "B", "D", "F", "H"]:
+    for signal_id in ["B", "D", "F", "H"]:
         sig = validation_result['signals'][signal_id]
         
         col_left, col_right = st.columns([3, 1])
@@ -351,7 +352,7 @@ with tab4:
     col_core, col_sat = st.columns(2)
     
     with col_core:
-        st.write("**CORE (Thesis-Driven):** 7 positions")
+        st.write("**CORE (Thesis-Driven):** 5 positions")
         core_tickers = list(CORE_PORTFOLIO.keys())
         for ticker in core_tickers:
             status = "✓" if CORE_PORTFOLIO[ticker].get("status", "ACTIVE") == "ACTIVE" else "✗"
@@ -359,7 +360,7 @@ with tab4:
             st.write(f"{status} {ticker}: {ret}%")
     
     with col_sat:
-        st.write("**SATELLITE (Personal):** 2 positions (Excluded)")
+        st.write("**SATELLITE (Personal):** 4 positions (Excluded)")
         for ticker, info in SATELLITE_PORTFOLIO.items():
             st.write(f"• {ticker}: {info['current_return_%']}% (Not validated)")
     

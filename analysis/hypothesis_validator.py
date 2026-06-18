@@ -50,7 +50,7 @@ class HypothesisValidator:
         total_weighted_achievement = 0.0
         bullish_count = 0  # 80% 이상 신호 카운트
         
-        for signal_id in ["A", "B", "D", "F", "H"]:
+        for signal_id in ["B", "D", "F", "H"]:
             sig = self.signals[signal_id]
             current_value = current_signals.get(signal_id, sig["current_value"])
             weight = sig["weight"]
@@ -81,17 +81,15 @@ class HypothesisValidator:
         
         overall_confidence = round(total_weighted_achievement / 100.0 * 100.0, 1)
         
-        # 더 현실적인 status 판정
+        # Status = 신호 진행도 (failure는 별도 failure_conditions로 판정, confidence로 판정 안 함)
         if overall_confidence >= 80:
-            hypothesis_status = "✅ STRONG (4~5 bullish signals)"
-        elif overall_confidence >= 70:
-            hypothesis_status = "🟢 ON TRACK (3 bullish signals)"
-        elif overall_confidence >= 50:
-            hypothesis_status = "🟡 PROGRESSING (2 bullish signals)"
-        elif overall_confidence >= 30:
-            hypothesis_status = "🔵 EARLY STAGE (signals advancing)"
+            hypothesis_status = "✅ STRONG (most signals bullish)"
+        elif overall_confidence >= 60:
+            hypothesis_status = "🟢 ON TRACK (signals confirming)"
+        elif overall_confidence >= 40:
+            hypothesis_status = "🟡 PROGRESSING (mixed signals)"
         else:
-            hypothesis_status = "🔴 FAILED (signals reversing)"
+            hypothesis_status = "🔵 EARLY STAGE (thesis not yet confirmed)"
         
         result = {
             "timestamp": datetime.now().isoformat(),
@@ -117,7 +115,7 @@ class HypothesisValidator:
         print("SIGNAL BREAKDOWN:")
         print("─" * 70)
         
-        for signal_id in ["A", "B", "D", "F", "H"]:
+        for signal_id in ["B", "D", "F", "H"]:
             sig = result['signals'][signal_id]
             bar_length = int(sig['achievement_%'] / 5)
             bar = "█" * bar_length + "░" * (20 - bar_length)

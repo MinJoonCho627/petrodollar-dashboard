@@ -50,9 +50,12 @@ INITIAL_HYPOTHESIS = {
     "created_date": "2026-06-16",
     
     "description": """
-    Trump administration will focus on Indo-Pacific region to contain 
-    China's rise through technology decoupling, supply chain fragmentation,
-    dollar hegemony, and alliance strengthening.
+    Trump's China pressure is not a one-off trade war but a structural 
+    supply-chain decoupling. Thesis concentrates on two tradeable mechanisms:
+    (1) Energy/materials supply-chain realignment (F-axis: COPX, TSES, TSNF)
+    (2) Persistent geopolitical tension driving surveillance/defense demand (D-axis: PL)
+    Dollar hegemony & broader macro framing are treated as background context,
+    NOT as direct validation signals (no pure-play position).
     """,
     
     "period": {
@@ -68,16 +71,15 @@ INITIAL_HYPOTHESIS = {
     },
     
     "validation_signals": [
-        {"id": "A", "signal": "USD Index > 105", "weight": 0.10},
-        {"id": "B", "signal": "China Tariff > 25%", "weight": 0.30},
-        {"id": "D", "signal": "Taiwan chip supply chain integration", "weight": 0.20},
-        {"id": "F", "signal": "Energy supply chain decoupling", "weight": 0.30},
+        {"id": "B", "signal": "China Tariff > 25%", "weight": 0.20},
+        {"id": "D", "signal": "Taiwan/geopolitical tension (PL exposure)", "weight": 0.20},
+        {"id": "F", "signal": "Energy supply chain decoupling", "weight": 0.50},
         {"id": "H", "signal": "China growth rate < 4%", "weight": 0.10},
     ],
     
     "failure_conditions": [
         {"id": "C", "condition": "Portfolio drawdown > -20%"},
-        {"id": "D_fail", "condition": "US-China major trade deal"},
+        {"id": "D_fail", "condition": "Trade deal WITH decoupling reversal (tariff cut + NO China financial opening + yuan strength). NOTE: a deal where China submits (opens financial markets, USD strengthens) = thesis SUCCESS, not failure."},
     ],
     
     "review_schedule": {
@@ -91,23 +93,6 @@ INITIAL_HYPOTHESIS = {
 # ═══════════════════════════════════════════════════════════════════════
 
 SIGNAL_DEFINITIONS = {
-    "A": {
-        "name": "USD Index Strength",
-        "description": "Dollar hegemony via UUP proxy",
-        "current_value": 28.18,
-        "unit": "USD",
-        "bullish_threshold": 29.00,
-        "bearish_threshold": 27.50,
-        "weight": 0.20,
-        "data_source": "Yahoo Finance (UUP)",
-        "update_frequency": "daily",
-        "interpretation": {
-            "bullish": "UUP > $29.00 → USD strengthening, hegemony reinforced",
-            "neutral": "UUP $27.50~$29.00 → Stability",
-            "bearish": "UUP < $27.50 → Dollar weakness, hegemony threat",
-        }
-    },
-    
     "B": {
         "name": "China Tariff & Trade Restrictions",
         "description": "Trump tariff pressure on China",
@@ -213,7 +198,6 @@ SIGNAL_DEFINITIONS = {
 BASELINE_SNAPSHOT = {
     "date": "2026-06-16",
     "signals": {
-        "A": 28.18,
         "B": 17.5,
         "D": 40.0,
         "F": 35.0,
@@ -227,33 +211,26 @@ BASELINE_SNAPSHOT = {
 # ═══════════════════════════════════════════════════════════════════════
 
 SIGNAL_DEFINITIONS = {
-    "A": {
-        "name": "USD Index Strength",
-        "current_value": 28.18,
-        "bullish_threshold": 29.00,
-        "bearish_threshold": 27.50,
-        "weight": 0.10,  # HOOD만 노출 (1/10)
-    },
     "B": {
         "name": "China Tariff",
         "current_value": 17.5,
         "bullish_threshold": 25.0,
         "bearish_threshold": 10.0,
-        "weight": 0.30,  # PL, IONQ, COPX, HOOD 노출 (4/10)
+        "weight": 0.20,  # COPX 노출 (1/4)
     },
     "D": {
         "name": "Taiwan Supply Chain",
         "current_value": 40.0,
         "bullish_threshold": 65.0,
         "bearish_threshold": 35.0,
-        "weight": 0.20,  # PL, IONQ 핵심 (2/10)
+        "weight": 0.20,  # PL 노출 (1/4)
     },
     "F": {
         "name": "Energy Decoupling",
         "current_value": 35.0,
         "bullish_threshold": 55.0,
         "bearish_threshold": 30.0,
-        "weight": 0.30,  # TSES, TSNF, COPX, URA 노출 (4/10)
+        "weight": 0.50,  # COPX, TSES, TSNF 노출 (3/4) - 핵심 베팅
         "wti_baseline": 74.75,
     },
     "H": {
@@ -261,6 +238,6 @@ SIGNAL_DEFINITIONS = {
         "current_value": 5.0,
         "bullish_threshold": 4.0,
         "bearish_threshold": 5.5,
-        "weight": 0.10,  # Synthetic (다른 신호에 내재) (0.5/10)
+        "weight": 0.10,  # Synthetic 배경 지표
     },
 }
