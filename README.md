@@ -20,3 +20,11 @@ config.py: INITIAL_HYPOTHESIS + SIGNAL_DEFINITIONS | analysis/hypothesis_validat
 - Framework: Thesis-first, hypothesis-driven, quarterly validation
 
 **Timeline: 2026-06-16 (start) → 2028-02-18 (target) | Enlistment: 2026-08-18 (automation ready)**
+
+## 🔄 Phase Timeline
+- P1-P3: ✅ Hypothesis & Signal Validation Complete
+- **P4:** Signal weight justification + Tab 4 cleanup
+- **P5:** Live trading simulation + Real benchmark metrics
+  - 실제 자금 시뮬레이션 시작
+  - SPY/QQQ 시계열 기반 Sharpe, Sortino 계산
+  - Daily rebalancing logic 추가
