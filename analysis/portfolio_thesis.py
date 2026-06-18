@@ -30,8 +30,8 @@ CORE_PORTFOLIO = {
         "signal_exposure": ["F"],  # Energy decoupling
         "current_price": None,
         "current_return_%": -7.65,
-        "status": "SOLD (2026-06-29)",
-        "exit_reason": "Iran nuclear deal signal triggered failure condition",
+        "status": "SOLD (2026-06-18)",
+        "exit_reason": "Iran deal triggered pre-defined failure condition, confirmed 2026-06-18. Original thesis (Iran risk -> uranium premium) closed at -7.65%.",
         "failure_signal": "Renewable energy collapse OR nuclear policy reversal",
     },
     "TSES": {
