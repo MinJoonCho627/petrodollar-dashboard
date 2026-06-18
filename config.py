@@ -68,11 +68,11 @@ INITIAL_HYPOTHESIS = {
     },
     
     "validation_signals": [
-        {"id": "A", "signal": "USD Index > 105", "weight": 0.20},
-        {"id": "B", "signal": "China Tariff > 25%", "weight": 0.20},
+        {"id": "A", "signal": "USD Index > 105", "weight": 0.10},
+        {"id": "B", "signal": "China Tariff > 25%", "weight": 0.30},
         {"id": "D", "signal": "Taiwan chip supply chain integration", "weight": 0.20},
-        {"id": "F", "signal": "Energy supply chain decoupling", "weight": 0.20},
-        {"id": "H", "signal": "China growth rate < 4%", "weight": 0.20},
+        {"id": "F", "signal": "Energy supply chain decoupling", "weight": 0.30},
+        {"id": "H", "signal": "China growth rate < 4%", "weight": 0.10},
     ],
     
     "failure_conditions": [
@@ -232,28 +232,28 @@ SIGNAL_DEFINITIONS = {
         "current_value": 28.18,
         "bullish_threshold": 29.00,
         "bearish_threshold": 27.50,
-        "weight": 0.20,
+        "weight": 0.10,  # HOOD만 노출 (1/10)
     },
     "B": {
         "name": "China Tariff",
         "current_value": 17.5,
         "bullish_threshold": 25.0,
         "bearish_threshold": 10.0,
-        "weight": 0.20,
+        "weight": 0.30,  # PL, IONQ, COPX, HOOD 노출 (4/10)
     },
     "D": {
         "name": "Taiwan Supply Chain",
         "current_value": 40.0,
         "bullish_threshold": 65.0,
         "bearish_threshold": 35.0,
-        "weight": 0.20,
+        "weight": 0.20,  # PL, IONQ 핵심 (2/10)
     },
     "F": {
         "name": "Energy Decoupling",
         "current_value": 35.0,
         "bullish_threshold": 55.0,
         "bearish_threshold": 30.0,
-        "weight": 0.20,
+        "weight": 0.30,  # TSES, TSNF, COPX, URA 노출 (4/10)
         "wti_baseline": 74.75,
     },
     "H": {
@@ -261,6 +261,6 @@ SIGNAL_DEFINITIONS = {
         "current_value": 5.0,
         "bullish_threshold": 4.0,
         "bearish_threshold": 5.5,
-        "weight": 0.20,
+        "weight": 0.10,  # Synthetic (다른 신호에 내재) (0.5/10)
     },
 }
