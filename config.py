@@ -50,12 +50,17 @@ INITIAL_HYPOTHESIS = {
     "created_date": "2026-06-16",
     
     "description": """
-    Trump's China pressure is not a one-off trade war but a structural 
-    supply-chain decoupling. Thesis concentrates on two tradeable mechanisms:
+    CORE BET: Trump's tactics are unpredictable, but the strategic direction is consistent
+    -- the US extracts maximum gains while weakening China's global power expansion.
+    Tariff deals or pressure all converge toward curbing China's hegemony. Final verdict: Feb 2028.
+
+    Two tradeable mechanisms:
     (1) Energy/materials supply-chain realignment (F-axis: COPX, TSES, TSNF)
     (2) Persistent geopolitical tension driving surveillance/defense demand (D-axis: PL)
-    Dollar hegemony & broader macro framing are treated as background context,
-    NOT as direct validation signals (no pure-play position).
+
+    NOTE: This is a ~20-month directional experiment. Interim confidence scores are
+    progress markers, NOT a pass/fail judgment. Dollar hegemony & broader framing =
+    background context, not direct validation signals.
     """,
     
     "period": {
