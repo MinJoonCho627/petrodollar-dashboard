@@ -281,25 +281,7 @@ with tab4:
     
     st.divider()
     
-    # 4. Risk & Benchmark Metrics
-    st.subheader("⚡ Risk & Benchmark Metrics")
-    
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.metric("Sharpe Ratio", f"{benchmark_result['sharpe_ratio']}", "Risk-adjusted return")
-    
-    with col2:
-        st.metric("Information Ratio", f"{benchmark_result['information_ratio']}", "Alpha per risk unit")
-    
-    with col3:
-        st.metric("Sortino Ratio", f"{benchmark_result['sortino_ratio']}", "Downside risk focus")
-    
-    with col4:
-        st.metric("Max Drawdown", f"{benchmark_result['max_drawdown_%']}%", "Worst case loss")
-    
-    st.divider()
-    
+    st.info("📊 Comprehensive risk metrics and benchmark analysis will be integrated in Phase 4.")    
     # 5. Portfolio Composition
     st.subheader("🎯 Portfolio Composition")
     
@@ -362,24 +344,6 @@ with tab4:
     
     st.divider()
     
-    # 4. Risk & Benchmark Metrics
-    st.subheader("⚡ Risk & Benchmark Metrics")
-    
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.metric("Sharpe Ratio", f"{benchmark_result['sharpe_ratio']}", "Risk-adjusted return")
-    
-    with col2:
-        st.metric("Information Ratio", f"{benchmark_result['information_ratio']}", "Alpha per risk unit")
-    
-    with col3:
-        st.metric("Sortino Ratio", f"{benchmark_result['sortino_ratio']}", "Downside risk focus")
-    
-    with col4:
-        st.metric("Max Drawdown", f"{benchmark_result['max_drawdown_%']}%", "Worst case loss")
-    
-    st.divider()
     
     # 5. Portfolio Composition
     st.subheader("🎯 Portfolio Composition")
