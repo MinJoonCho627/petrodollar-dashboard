@@ -195,7 +195,7 @@ with tab4:
     from analysis.hypothesis_validator import HypothesisValidator
     from analysis.benchmark_metrics import BenchmarkMetrics
     from analysis.portfolio_thesis import CORE_PORTFOLIO, SATELLITE_PORTFOLIO
-    from analysis.holdings import get_separated_performance
+    from analysis.holdings import get_separated_performance, get_position_returns
     perf = get_separated_performance()
     
     # Calculate validation
@@ -290,18 +290,27 @@ with tab4:
     
     col_core, col_sat = st.columns(2)
     
+    pos_returns = get_position_returns()
+
     with col_core:
-        st.write("**CORE (Thesis-Driven):** 5 positions")
-        core_tickers = list(CORE_PORTFOLIO.keys())
-        for ticker in core_tickers:
-            status = "✓" if CORE_PORTFOLIO[ticker].get("status", "ACTIVE") == "ACTIVE" else "✗"
-            ret = CORE_PORTFOLIO[ticker].get("current_return_%", "N/A")
-            st.write(f"{status} {ticker}: {ret}%")
-    
+        st.write("**CORE (Thesis-Driven):** live returns")
+        for ticker, p in pos_returns.items():
+            if p["group"] != "core":
+                continue
+            r = p["return_%"]
+            mark = "✓" if (r is not None and r >= 0) else "✗"
+            rtxt = f"{r:+.2f}%" if r is not None else "N/A"
+            st.write(f"{mark} {ticker}: {rtxt}")
+        st.caption("URA: SOLD 2026-06-18 (-7.65%, Iran-deal failure condition)")
+
     with col_sat:
-        st.write("**SATELLITE (Personal):** 4 positions (Excluded)")
-        for ticker, info in SATELLITE_PORTFOLIO.items():
-            st.write(f"• {ticker}: {info['current_return_%']}% (Not validated)")
+        st.write("**SATELLITE (Personal):** excluded from validation")
+        for ticker, p in pos_returns.items():
+            if p["group"] != "satellite":
+                continue
+            r = p["return_%"]
+            rtxt = f"{r:+.2f}%" if r is not None else "N/A"
+            st.write(f"• {ticker}: {rtxt} (Not validated)")
     
     st.divider()
     
@@ -353,18 +362,27 @@ with tab4:
     
     col_core, col_sat = st.columns(2)
     
+    pos_returns = get_position_returns()
+
     with col_core:
-        st.write("**CORE (Thesis-Driven):** 5 positions")
-        core_tickers = list(CORE_PORTFOLIO.keys())
-        for ticker in core_tickers:
-            status = "✓" if CORE_PORTFOLIO[ticker].get("status", "ACTIVE") == "ACTIVE" else "✗"
-            ret = CORE_PORTFOLIO[ticker].get("current_return_%", "N/A")
-            st.write(f"{status} {ticker}: {ret}%")
-    
+        st.write("**CORE (Thesis-Driven):** live returns")
+        for ticker, p in pos_returns.items():
+            if p["group"] != "core":
+                continue
+            r = p["return_%"]
+            mark = "✓" if (r is not None and r >= 0) else "✗"
+            rtxt = f"{r:+.2f}%" if r is not None else "N/A"
+            st.write(f"{mark} {ticker}: {rtxt}")
+        st.caption("URA: SOLD 2026-06-18 (-7.65%, Iran-deal failure condition)")
+
     with col_sat:
-        st.write("**SATELLITE (Personal):** 4 positions (Excluded)")
-        for ticker, info in SATELLITE_PORTFOLIO.items():
-            st.write(f"• {ticker}: {info['current_return_%']}% (Not validated)")
+        st.write("**SATELLITE (Personal):** excluded from validation")
+        for ticker, p in pos_returns.items():
+            if p["group"] != "satellite":
+                continue
+            r = p["return_%"]
+            rtxt = f"{r:+.2f}%" if r is not None else "N/A"
+            st.write(f"• {ticker}: {rtxt} (Not validated)")
     
     st.divider()
     
@@ -529,7 +547,8 @@ with tab5:
 git add data/
 git commit -m "Portfolio: {entry_date.isoformat()}"
 git push
-```
+``
+
                 """)
         
         else:
