@@ -5,12 +5,12 @@ CORE_PORTFOLIO = {
     "PL": {
         "name": "Planet Labs",
         "sector": "space",
-        "thesis": "Geopolitical tension drives AI satellite imagery demand (defense/surveillance)",
-        "hypothesis_link": "D-axis",  # Geopolitical tension hedge
-        "signal_exposure": ["D"],  # Taiwan/geopolitical tension
-        "current_price": 30.44,
-        "current_return_%": 98.96,
-        "failure_signal": "Détente / de-escalation OR competitor satellite tech breakthrough",
+        "thesis": "US space/satellite dominance in US-China tech frontier competition (AI imagery, defense/surveillance)",
+        "hypothesis_link": "D-axis",  # Tech & frontier dominance
+        "signal_exposure": ["D"],  # US-China tech/space dominance
+        "current_price": None,
+        "current_return_%": 84.51,
+        "failure_signal": "US loses space/satellite lead OR competitor breakthrough. NOTE: also held inside TSNF (double exposure to PL).",
     },
     "COPX": {
         "name": "Copper Miners ETF",
@@ -35,24 +35,24 @@ CORE_PORTFOLIO = {
         "failure_signal": "Renewable energy collapse OR nuclear policy reversal",
     },
     "TSES": {
-        "name": "TechX Energy",
-        "sector": "energy",
-        "thesis": "Energy supply chain resilience through diversification",
-        "hypothesis_link": "H3",
+        "name": "Truth Social American Energy Security ETF",
+        "sector": "energy (ETF basket: Exxon, Chevron, ConocoPhillips, nuclear utils)",
+        "thesis": "Trump energy doctrine -- fossil fuel expansion + nuclear revival. US energy supply dominance curbs China's cheap sanctioned-oil access.",
+        "hypothesis_link": "F-axis",
         "signal_exposure": ["F"],
         "current_price": None,
-        "current_return_%": 15.21,
-        "failure_signal": "Energy supply normalization OR China alternative supply secured",
+        "current_return_%": 15.38,
+        "failure_signal": "Energy policy reversal OR US-China energy normalization. NOTE: new ETF (Dec 2025), small AUM ~$10M, Trump-brand political risk.",
     },
     "TSNF": {
-        "name": "Transocean",
-        "sector": "offshore energy",
-        "thesis": "Maritime resource control & ocean geopolitics advantage",
-        "hypothesis_link": "H3",
-        "signal_exposure": ["F"],
+        "name": "Truth Social American Next Frontiers ETF",
+        "sector": "tech frontier (ETF basket: Planet Labs, Intuitive Machines, Micron, Marvell)",
+        "thesis": "US-China tech/space/military frontier dominance -- space, AI, semiconductors. Note: PL is a top holding (overlaps with direct PL position).",
+        "hypothesis_link": "D-axis",
+        "signal_exposure": ["D"],
         "current_price": None,
-        "current_return_%": 20.26,
-        "failure_signal": "International maritime law weakening OR China offshore expansion",
+        "current_return_%": 20.94,
+        "failure_signal": "China closes tech/space gap OR US loses semiconductor/AI lead. NOTE: new ETF (Dec 2025), Trump-brand political risk, double-exposure to PL.",
     },
 }
 

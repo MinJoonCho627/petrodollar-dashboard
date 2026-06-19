@@ -195,6 +195,8 @@ with tab4:
     from analysis.hypothesis_validator import HypothesisValidator
     from analysis.benchmark_metrics import BenchmarkMetrics
     from analysis.portfolio_thesis import CORE_PORTFOLIO, SATELLITE_PORTFOLIO
+    from analysis.holdings import get_separated_performance
+    perf = get_separated_performance()
     
     # Calculate validation
     validator = HypothesisValidator()
@@ -225,16 +227,16 @@ with tab4:
     
     with col2:
         st.metric(
-            "Portfolio Return",
-            f"{benchmark_result['portfolio_return_%']}%",
-            f"vs SPY {benchmark_result['spy_benchmark_%']}%"
+            "Core Return (Hypothesis)",
+            f"{perf['core']['return_%']:+.1f}%",
+            f"Capital: {perf['core_capital_share_%']}% of total"
         )
     
     with col3:
         st.metric(
-            "Alpha",
-            f"+{benchmark_result['alpha_%']}%",
-            "Excess over SPY"
+            "Satellite Return (Side bets)",
+            f"{perf['satellite']['return_%']:+.1f}%",
+            f"Capital: {perf['satellite_capital_share_%']}% of total"
         )
     
     with col4:

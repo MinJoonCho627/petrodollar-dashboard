@@ -56,7 +56,7 @@ INITIAL_HYPOTHESIS = {
 
     Two tradeable mechanisms:
     (1) Energy/materials supply-chain realignment (F-axis: COPX, TSES, TSNF)
-    (2) Persistent geopolitical tension driving surveillance/defense demand (D-axis: PL)
+    (2) US-China tech/space/military frontier dominance (D-axis: PL, TSNF)
 
     NOTE: This is a ~20-month directional experiment. Interim confidence scores are
     progress markers, NOT a pass/fail judgment. Dollar hegemony & broader framing =
@@ -77,7 +77,7 @@ INITIAL_HYPOTHESIS = {
     
     "validation_signals": [
         {"id": "B", "signal": "China Tariff > 25%", "weight": 0.20},
-        {"id": "D", "signal": "Taiwan/geopolitical tension (PL exposure)", "weight": 0.20},
+        {"id": "D", "signal": "US-China tech/frontier dominance (PL, TSNF)", "weight": 0.20},
         {"id": "F", "signal": "Energy supply chain decoupling", "weight": 0.50},
         {"id": "H", "signal": "China growth rate < 4%", "weight": 0.10},
     ],
@@ -122,26 +122,26 @@ SIGNAL_DEFINITIONS = {
     },
     
     "D": {
-        "name": "Taiwan Semiconductor Supply Chain Integration",
-        "description": "TSMC & Taiwan's integration into US supply chain",
+        "name": "US-China Tech & Frontier Dominance",
+        "description": "US lead in the tech/space/military frontier vs China (semiconductors, space, AI, defense). Broader than Taiwan alone -- Taiwan is one component.",
         "current_value": 40.0,
         "unit": "%",
         "bullish_threshold": 65.0,
         "bearish_threshold": 35.0,
         "weight": 0.20,
-        "data_source": "TSMC announcements, Taiwan gov, military activity",
+        "data_source": "Chip export controls, space budget, defense posture, Taiwan/TSMC, AI capability gap",
         "update_frequency": "monthly/event-driven",
         "components": [
-            "Arizona fab construction (20%)",
-            "TSMC US investment (15%)",
-            "Taiwan pro-US alignment (15%)",
-            "ASML tools control (15%)",
-            "Military tension assessment (20%)",
+            "Semiconductor export controls & US fab buildout (25%)",
+            "Space/satellite dominance (PL, Intuitive Machines) (25%)",
+            "AI capability gap vs China (20%)",
+            "Defense/military posture in Indo-Pacific (15%)",
+            "Taiwan/TSMC alignment (15%)",
         ],
         "interpretation": {
-            "bullish": "Integration > 65% → Taiwan firmly in US orbit",
-            "neutral": "Integration 35~65% → Ongoing integration",
-            "bearish": "Integration < 35% → China gaining leverage",
+            "bullish": "Dominance > 65% → US clearly ahead in tech/space/military frontier",
+            "neutral": "35~65% → Contested, ongoing competition",
+            "bearish": "< 35% → China closing the gap",
         }
     },
     
@@ -224,7 +224,7 @@ SIGNAL_DEFINITIONS = {
         "weight": 0.20,  # COPX 노출 (1/4)
     },
     "D": {
-        "name": "Taiwan Supply Chain",
+        "name": "Tech & Frontier Dominance",
         "current_value": 40.0,
         "bullish_threshold": 65.0,
         "bearish_threshold": 35.0,
