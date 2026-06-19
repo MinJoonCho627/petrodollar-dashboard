@@ -9,27 +9,24 @@ CORE_PORTFOLIO = {
         "hypothesis_link": "D-axis",  # Tech & frontier dominance
         "signal_exposure": ["D"],  # US-China tech/space dominance
         "current_price": None,
-        "current_return_%": 84.51,
         "failure_signal": "US loses space/satellite lead OR competitor breakthrough. NOTE: also held inside TSNF (double exposure to PL).",
     },
     "COPX": {
         "name": "Copper Miners ETF",
         "sector": "energy/materials",
         "thesis": "US supply chain control via critical minerals independence",
-        "hypothesis_link": "H3",
+        "hypothesis_link": "F-axis",
         "signal_exposure": ["F"],  # Energy decoupling
         "current_price": None,
-        "current_return_%": 42.67,
         "failure_signal": "China mineral export cooperation OR supply normalization",
     },
     "URA": {
         "name": "Uranium ETF",
         "sector": "energy",
         "thesis": "Energy independence & nuclear power expansion",
-        "hypothesis_link": "H3",
+        "hypothesis_link": "F-axis",
         "signal_exposure": ["F"],  # Energy decoupling
         "current_price": None,
-        "current_return_%": -7.65,
         "status": "SOLD (2026-06-18)",
         "exit_reason": "Iran deal triggered pre-defined failure condition, confirmed 2026-06-18. Original thesis (Iran risk -> uranium premium) closed at -7.65%.",
         "failure_signal": "Renewable energy collapse OR nuclear policy reversal",
@@ -41,7 +38,6 @@ CORE_PORTFOLIO = {
         "hypothesis_link": "F-axis",
         "signal_exposure": ["F"],
         "current_price": None,
-        "current_return_%": 15.38,
         "failure_signal": "Energy policy reversal OR US-China energy normalization. NOTE: new ETF (Dec 2025), small AUM ~$10M, Trump-brand political risk.",
     },
     "TSNF": {
@@ -51,7 +47,6 @@ CORE_PORTFOLIO = {
         "hypothesis_link": "D-axis",
         "signal_exposure": ["D"],
         "current_price": None,
-        "current_return_%": 20.94,
         "failure_signal": "China closes tech/space gap OR US loses semiconductor/AI lead. NOTE: new ETF (Dec 2025), Trump-brand political risk, double-exposure to PL.",
     },
 }
@@ -62,28 +57,24 @@ SATELLITE_PORTFOLIO = {
         "sector": "finance",
         "thesis": "Personal judgment - crypto adoption + US domestic political tailwind (NOT decoupling thesis)",
         "status": "SATELLITE (Excluded from hypothesis validation)",
-        "current_return_%": 30.95,
     },
     "IONQ": {
         "name": "IonQ",
         "sector": "technology",
         "thesis": "Personal judgment - standalone quantum computing bet (NOT decoupling thesis)",
         "status": "SATELLITE (Excluded from hypothesis validation)",
-        "current_return_%": 9.48,
     },
     "BMNR": {
         "name": "Bitmine",
         "sector": "crypto",
         "thesis": "Personal judgment - digital currency control mechanism",
         "status": "SATELLITE (Excluded from hypothesis validation)",
-        "current_return_%": -1.78,
     },
     "RXRX": {
         "name": "Recursion Pharma",
         "sector": "biotech",
         "thesis": "Personal judgment - AI-driven pharmaceutical independence",
         "status": "SATELLITE (Excluded from hypothesis validation)",
-        "current_return_%": -47.64,
     },
 }
 

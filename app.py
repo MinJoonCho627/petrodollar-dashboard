@@ -272,10 +272,21 @@ with tab4:
     # 3. Core Portfolio Thesis
     st.subheader("💼 Core Portfolio - Thesis Mapping")
     
+    from analysis.holdings import CLOSED_POSITIONS as _CLOSED
+
+    _thesis_pos_returns = get_position_returns()
+
     for ticker, info in CORE_PORTFOLIO.items():
         status = info.get("status", "ACTIVE")
-        
-        with st.expander(f"**{ticker}** ({status}) | Return: {info.get('current_return_%', 'N/A')}%"):
+
+        if ticker in _CLOSED:
+            live_return_txt = f"{_CLOSED[ticker]['realized_return_%']:+.2f}% (realized)"
+        elif ticker in _thesis_pos_returns and _thesis_pos_returns[ticker]["return_%"] is not None:
+            live_return_txt = f"{_thesis_pos_returns[ticker]['return_%']:+.2f}% (live)"
+        else:
+            live_return_txt = "N/A"
+
+        with st.expander(f"**{ticker}** ({status}) | Return: {live_return_txt}"):
             st.write(f"**Name:** {info['name']}")
             st.write(f"**Thesis:** {info['thesis']}")
             st.write(f"**Hypothesis Link:** {info['hypothesis_link']}")
@@ -285,78 +296,6 @@ with tab4:
     st.divider()
     
     st.info("📊 Comprehensive risk metrics and benchmark analysis will be integrated in Phase 4.")    
-    # 5. Portfolio Composition
-    st.subheader("🎯 Portfolio Composition")
-    
-    col_core, col_sat = st.columns(2)
-    
-    pos_returns = get_position_returns()
-
-    with col_core:
-        st.write("**CORE (Thesis-Driven):** live returns")
-        for ticker, p in pos_returns.items():
-            if p["group"] != "core":
-                continue
-            r = p["return_%"]
-            mark = "✓" if (r is not None and r >= 0) else "✗"
-            rtxt = f"{r:+.2f}%" if r is not None else "N/A"
-            st.write(f"{mark} {ticker}: {rtxt}")
-        st.caption("URA: SOLD 2026-06-18 (-7.65%, Iran-deal failure condition)")
-
-    with col_sat:
-        st.write("**SATELLITE (Personal):** excluded from validation")
-        for ticker, p in pos_returns.items():
-            if p["group"] != "satellite":
-                continue
-            r = p["return_%"]
-            rtxt = f"{r:+.2f}%" if r is not None else "N/A"
-            st.write(f"• {ticker}: {rtxt} (Not validated)")
-    
-    st.divider()
-    
-    # 6. Next Review Date
-    st.info("**Next Quarterly Review:** 2026-09-18 (3 months)")
-    st.caption("Portfolio updates trigger re-validation at Tab 5")
-    
-    st.divider()
-    
-    # 2. Signal Validation
-    st.subheader("📈 Signal Validation (4 Macro Indicators)")
-    
-    for signal_id in ["B", "D", "F", "H"]:
-        sig = validation_result['signals'][signal_id]
-        
-        col_left, col_right = st.columns([3, 1])
-        
-        with col_left:
-            bar_length = int(sig['achievement_%'] / 5)
-            bar = "█" * bar_length + "░" * (20 - bar_length)
-            
-            st.write(f"**{signal_id}. {sig['signal_name']}**")
-            st.write(f"{bar} {sig['achievement_%']}% {sig['status']}")
-            st.caption(f"Target: {sig['bullish_threshold']} | Current: {sig['current_value']}")
-        
-        with col_right:
-            st.metric("Weight", f"{sig['weight']*100:.0f}%")
-    
-    st.divider()
-    
-    # 3. Core Portfolio Thesis
-    st.subheader("💼 Core Portfolio - Thesis Mapping")
-    
-    for ticker, info in CORE_PORTFOLIO.items():
-        status = info.get("status", "ACTIVE")
-        
-        with st.expander(f"**{ticker}** ({status}) | Return: {info.get('current_return_%', 'N/A')}%"):
-            st.write(f"**Name:** {info['name']}")
-            st.write(f"**Thesis:** {info['thesis']}")
-            st.write(f"**Hypothesis Link:** {info['hypothesis_link']}")
-            st.write(f"**Signal Exposure:** {', '.join(info['signal_exposure'])}")
-            st.warning(f"**Failure Signal:** {info['failure_signal']}")
-    
-    st.divider()
-    
-    
     # 5. Portfolio Composition
     st.subheader("🎯 Portfolio Composition")
     
