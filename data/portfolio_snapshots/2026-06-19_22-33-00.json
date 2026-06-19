@@ -1,0 +1,23 @@
+{
+  "date": "2026-06-19",
+  "time": "22:33:00",
+  "timestamp": "2026-06-19T22:37:03.354793",
+  "core_return_%": 40.17,
+  "satellite_return_%": 2.42,
+  "total_return_%": 24.89,
+  "core_capital_share_%": 59.5,
+  "satellite_capital_share_%": 40.5,
+  "positions": {
+    "PL": 84.51,
+    "COPX": 36.97,
+    "TSES": 15.38,
+    "TSNF": 20.94,
+    "HOOD": 44.47,
+    "IONQ": 0.96,
+    "BMNR": -7.13,
+    "RXRX": -48.32
+  },
+  "reason": "모니터링",
+  "world_events": "",
+  "notes": "스냅샷 저장용도 - 초기 실험\n"
+}

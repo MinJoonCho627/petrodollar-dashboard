@@ -390,172 +390,129 @@ with tab4:
     st.info("**Next Quarterly Review:** 2026-09-18 (3 months)")
     st.caption("Portfolio updates trigger re-validation at Tab 5")
 with tab5:
-    st.subheader("📔 주식일지 - 실시간 포트폴리오 업데이트")
-    st.markdown("포트폴리오를 건드릴 때마다 입력 → 자동 분석")
-    
+    st.subheader("📔 주식일지 - 스냅샷 기록 (Core/Satellite 분리)")
+    st.markdown("그 순간의 Core/Satellite 수익률을 박제 저장 → 이전 스냅샷과 비교")
+
+    from analysis.holdings import get_separated_performance as _gsp, get_position_returns as _gpr
+
     data_dir = Path("data")
     snapshots_dir = data_dir / "portfolio_snapshots"
-    analysis_dir = data_dir / "period_analysis"
-    
     snapshots_dir.mkdir(parents=True, exist_ok=True)
-    analysis_dir.mkdir(parents=True, exist_ok=True)
-    
+
     with st.sidebar:
         st.subheader("📊 주식일지 상태")
-        
         snapshots = sorted(snapshots_dir.glob("*.json"), reverse=True)
-        
         if snapshots:
             with open(snapshots[0], 'r', encoding='utf-8') as f:
                 latest = json.load(f)
-            
-            st.write(f"**마지막:** {latest['date']} {latest['time'][:5]}")
+            st.write(f"**마지막:** {latest['date']}")
             st.divider()
-            
-            for ticker, price in latest['portfolio'].items():
-                if price > 0:
-                    st.write(f"• {ticker}: ${price:.2f}")
+            st.write(f"Core: {latest['core_return_%']:+.2f}%")
+            st.write(f"Satellite: {latest['satellite_return_%']:+.2f}%")
         else:
             st.info("아직 입력이 없습니다")
-    
-    st.subheader("📝 포트폴리오 입력")
-    
+
+    st.subheader("📝 현재 시점 스냅샷")
+
     col_date, col_time = st.columns([2, 1])
     with col_date:
         entry_date = st.date_input("날짜", value=datetime.now().date(), key="tab5_date")
     with col_time:
         entry_time = st.time_input("시간", value=datetime.now().time(), key="tab5_time")
-    
+
     st.divider()
-    
-    st.subheader("💰 종목 가격")
-    
-    TICKERS = ["PL", "IONQ", "HOOD", "BMNR", "COPX", "URA", "TSES", "TSNF", "RXRX"]
-    
-    portfolio = {}
-    cols = st.columns(3)
-    
-    for i, ticker in enumerate(TICKERS):
-        with cols[i % 3]:
-            portfolio[ticker] = st.number_input(
-                ticker,
-                value=0.0,
-                step=0.01,
-                format="%.2f",
-                key=f"tab5_{ticker}"
-            )
-    
+
+    # 실시간 데이터 가져오기 (yfinance, holdings.py 경유 -- 수동 입력 없음)
+    live_pos = _gpr()
+    live_perf = _gsp()
+
+    st.subheader("💰 현재 보유 현황 (실시간, yfinance)")
+    col_c, col_s = st.columns(2)
+    with col_c:
+        st.metric("Core Return", f"{live_perf['core']['return_%']:+.2f}%",
+                   f"Capital {live_perf['core_capital_share_%']}%")
+        for t, p in live_pos.items():
+            if p["group"] == "core" and p["return_%"] is not None:
+                st.caption(f"{t}: ${p['price']:.2f} ({p['return_%']:+.2f}%)")
+    with col_s:
+        st.metric("Satellite Return", f"{live_perf['satellite']['return_%']:+.2f}%",
+                   f"Capital {live_perf['satellite_capital_share_%']}%")
+        for t, p in live_pos.items():
+            if p["group"] == "satellite" and p["return_%"] is not None:
+                st.caption(f"{t}: ${p['price']:.2f} ({p['return_%']:+.2f}%)")
+
     st.divider()
-    
-    st.subheader("📌 메모")
-    
-    reason = st.selectbox(
-        "이유",
-        ["선택", "모니터링", "매수", "매도", "손절", "익절"],
-        key="tab5_reason"
-    )
-    
-    notes = st.text_area("상세 메모", height=80, key="tab5_notes")
-    
-    if st.button("✅ 업데이트", use_container_width=True, key="tab5_update"):
-        
+    st.subheader("📌 이번 업데이트 메모")
+
+    reason = st.selectbox("이유", ["선택", "모니터링", "매수", "매도", "손절", "익절"], key="tab5_reason")
+    world_events = st.text_area("이 기간 동안의 주요 사건/뉴스", height=80, key="tab5_events",
+                                  placeholder="예: 미중 정상회담, 관세 인하 발표 등")
+    notes = st.text_area("내 분석/메모", height=80, key="tab5_notes")
+
+    if st.button("✅ 스냅샷 저장", use_container_width=True, key="tab5_update"):
+
         snapshot = {
             "date": entry_date.isoformat(),
             "time": entry_time.isoformat(),
-            "portfolio": portfolio,
-            "reason": reason,
-            "notes": notes,
             "timestamp": datetime.now().isoformat(),
+            "core_return_%": live_perf["core"]["return_%"],
+            "satellite_return_%": live_perf["satellite"]["return_%"],
+            "total_return_%": live_perf["total"]["return_%"],
+            "core_capital_share_%": live_perf["core_capital_share_%"],
+            "satellite_capital_share_%": live_perf["satellite_capital_share_%"],
+            "positions": {t: p["return_%"] for t, p in live_pos.items() if p["return_%"] is not None},
+            "reason": reason,
+            "world_events": world_events,
+            "notes": notes,
         }
-        
+
         snap_file = snapshots_dir / f"{entry_date.isoformat()}_{entry_time.strftime('%H-%M-%S')}.json"
         with open(snap_file, 'w', encoding='utf-8') as f:
             json.dump(snapshot, f, indent=2, ensure_ascii=False)
-        
-        st.success(f"✅ 저장됨")
-        
-        snapshots = sorted(snapshots_dir.glob("*.json"))
-        
-        if len(snapshots) > 1:
+
+        st.success("✅ 스냅샷 저장됨")
+
+        all_snaps = sorted(snapshots_dir.glob("*.json"))
+        if len(all_snaps) > 1:
             prev_file = None
-            for snap in reversed(snapshots):
+            for snap in reversed(all_snaps):
                 if snap.name != snap_file.name:
                     prev_file = snap
                     break
-            
             if prev_file:
                 with open(prev_file, 'r', encoding='utf-8') as f:
                     prev = json.load(f)
-                
-                st.info("🔄 분석 중...")
-                
-                changes = {}
-                for ticker in TICKERS:
-                    prev_price = prev['portfolio'][ticker]
-                    curr_price = portfolio[ticker]
-                    
-                    if prev_price > 0 or curr_price > 0:
-                        if prev_price > 0:
-                            change_pct = ((curr_price - prev_price) / prev_price) * 100
-                        else:
-                            change_pct = 0
-                        
-                        changes[ticker] = {
-                            "before": prev_price,
-                            "after": curr_price,
-                            "change": round(change_pct, 2),
-                        }
-                
-                analysis = {
-                    "period": {
-                        "start": prev['date'],
-                        "end": entry_date.isoformat(),
-                    },
-                    "changes": changes,
-                }
-                
-                analysis_file = analysis_dir / f"{prev['date']}_to_{entry_date.isoformat()}.json"
-                with open(analysis_file, 'w', encoding='utf-8') as f:
-                    json.dump(analysis, f, indent=2, ensure_ascii=False)
-                
-                st.success("✅ 분석 완료!")
-                
-                st.divider()
-                st.subheader("📊 결과")
-                
-                for ticker, change in changes.items():
-                    if change['change'] != 0:
-                        c1, c2, c3, c4 = st.columns(4)
-                        with c1:
-                            st.write(f"**{ticker}**")
-                        with c2:
-                            st.write(f"${change['before']:.2f}")
-                        with c3:
-                            st.write("→")
-                        with c4:
-                            if change['change'] > 0:
-                                st.success(f"+{change['change']:.2f}%")
-                            elif change['change'] < 0:
-                                st.error(f"{change['change']:.2f}%")
-                            else:
-                                st.info("0%")
-                
-                st.divider()
-                st.info(f"""
-💾 GitHub 저장:
-```bash
-git add data/
-git commit -m "Portfolio: {entry_date.isoformat()}"
-git push
-``
 
-                """)
-        
-        else:
-            st.warning("⚠️ 첫 입력입니다. 다음 입력 시 분석이 시작됩니다.")
-    
+                st.divider()
+                st.subheader(f"🔄 비교: {prev['date']} → {entry_date.isoformat()}")
+
+                core_delta = snapshot["core_return_%"] - prev.get("core_return_%", 0)
+                sat_delta = snapshot["satellite_return_%"] - prev.get("satellite_return_%", 0)
+
+                cc1, cc2 = st.columns(2)
+                with cc1:
+                    st.metric("Core 변화", f"{snapshot['core_return_%']:+.2f}%", f"{core_delta:+.2f}pp")
+                with cc2:
+                    st.metric("Satellite 변화", f"{snapshot['satellite_return_%']:+.2f}%", f"{sat_delta:+.2f}pp")
+
+                if prev.get("world_events"):
+                    st.caption(f"지난 기간 사건: {prev['world_events']}")
+
     st.divider()
-    st.caption("📌 포트폴리오를 건드릴 때마다 입력하세요!")
+    st.subheader("📜 과거 스냅샷 기록")
+    all_snaps_display = sorted(snapshots_dir.glob("*.json"), reverse=True)
+    if all_snaps_display:
+        for snap_path in all_snaps_display[:10]:
+            with open(snap_path, 'r', encoding='utf-8') as f:
+                s = json.load(f)
+            with st.expander(f"{s['date']} | Core {s.get('core_return_%', 'N/A')}% / Satellite {s.get('satellite_return_%', 'N/A')}%"):
+                st.write(f"**이유:** {s.get('reason', 'N/A')}")
+                if s.get('world_events'):
+                    st.write(f"**사건:** {s['world_events']}")
+                if s.get('notes'):
+                    st.write(f"**메모:** {s['notes']}")
+    else:
+        st.caption("아직 저장된 스냅샷이 없습니다.")
 
 st.divider()
 st.caption(f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}")
