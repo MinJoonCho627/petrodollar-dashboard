@@ -393,7 +393,14 @@ with tab5:
     st.subheader("📔 주식일지 - 스냅샷 기록 (Core/Satellite 분리)")
     st.markdown("그 순간의 Core/Satellite 수익률을 박제 저장 → 이전 스냅샷과 비교")
 
-    from analysis.holdings import get_separated_performance as _gsp, get_position_returns as _gpr
+    from analysis.holdings import (
+        get_separated_performance as _gsp,
+        get_position_returns as _gpr,
+        HOLDINGS as _HOLDINGS,
+        record_buy as _record_buy,
+        record_sell as _record_sell,
+        TradeError as _TradeError,
+    )
 
     data_dir = Path("data")
     snapshots_dir = data_dir / "portfolio_snapshots"
@@ -440,6 +447,79 @@ with tab5:
         for t, p in live_pos.items():
             if p["group"] == "satellite" and p["return_%"] is not None:
                 st.caption(f"{t}: ${p['price']:.2f} ({p['return_%']:+.2f}%)")
+
+    st.divider()
+    st.subheader("🔁 포트폴리오 변화")
+
+    has_trade = st.radio(
+        "이번에 포트폴리오 변화 있었나요?",
+        ["없음", "있음"],
+        key="tab5_has_trade",
+        horizontal=True,
+    )
+
+    if has_trade == "있음":
+        st.caption("⚠️ 신규 종목 추가는 이 폼에서 지원하지 않습니다 -- 가설(A~H 신호) 연결 판단이 먼저 필요합니다. 새 종목이면 코드 작업 전에 먼저 논의하세요.")
+
+        trade_type = st.radio("구분", ["매수", "매도"], key="tab5_trade_type", horizontal=True)
+        trade_ticker = st.selectbox("종목", list(_HOLDINGS.keys()), key="tab5_trade_ticker")
+
+        if trade_type == "매수":
+            if "tab5_buy_form_id" not in st.session_state:
+                st.session_state.tab5_buy_form_id = 0
+            _bid = st.session_state.tab5_buy_form_id
+
+            buy_qty = st.number_input("매수 수량", min_value=0.0, step=0.01, key=f"tab5_buy_qty_{_bid}")
+            buy_amount = st.number_input("매수 금액 (USD)", min_value=0.0, step=0.01, key=f"tab5_buy_amount_{_bid}")
+
+            if st.button("📥 매수 기록", key=f"tab5_buy_submit_{_bid}"):
+                if buy_qty <= 0 or buy_amount <= 0:
+                    st.error("❌ 수량과 금액을 0보다 크게 입력하세요.")
+                else:
+                    try:
+                        buy_result = _record_buy(trade_ticker, buy_qty, buy_amount)
+                        st.success(f"✅ {trade_ticker} 매수 기록됨: shares={buy_result['shares']}, cost=${buy_result['cost']}")
+                        st.session_state.tab5_buy_form_id += 1
+                        st.rerun()
+                    except _TradeError as e:
+                        st.error(f"❌ {e}")
+
+        else:  # 매도
+            if "tab5_sell_form_id" not in st.session_state:
+                st.session_state.tab5_sell_form_id = 0
+            _sid = st.session_state.tab5_sell_form_id
+
+            current_shares = _HOLDINGS[trade_ticker]["shares"]
+            st.caption(f"현재 보유: {current_shares} shares")
+            sell_qty = st.number_input(
+                "매도 수량", min_value=0.0, max_value=float(current_shares), step=0.01, key=f"tab5_sell_qty_{_sid}"
+            )
+            is_full_close = sell_qty >= current_shares - 1e-9 and sell_qty > 0
+            sell_exit_reason = None
+            if is_full_close:
+                st.warning("⚠️ 전체 청산입니다. 사전에 정한 종료/실패 조건을 명시해야 합니다.")
+                sell_exit_reason = st.text_area("청산 이유 (필수)", key=f"tab5_exit_reason_{_sid}")
+
+            if st.button("📤 매도 기록", key=f"tab5_sell_submit_{_sid}"):
+                if sell_qty <= 0:
+                    st.error("❌ 매도 수량을 0보다 크게 입력하세요.")
+                else:
+                    try:
+                        sell_result = _record_sell(
+                            trade_ticker, sell_qty,
+                            exit_reason=sell_exit_reason if is_full_close else None,
+                        )
+                        if sell_result["full_close"]:
+                            st.success(
+                                f"✅ {trade_ticker} 전체 청산: 실현수익률 {sell_result['realized_return_%']:+.2f}% "
+                                f"(closed_positions로 이동됨)"
+                            )
+                        else:
+                            st.success(f"✅ {trade_ticker} 일부 매도 기록됨: {sell_qty} shares @ ${sell_result['price']}")
+                        st.session_state.tab5_sell_form_id += 1
+                        st.rerun()
+                    except _TradeError as e:
+                        st.error(f"❌ {e}")
 
     st.divider()
     st.subheader("📌 이번 업데이트 메모")

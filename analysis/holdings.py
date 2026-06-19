@@ -1,36 +1,34 @@
 # analysis/holdings.py
 # Actual brokerage holdings (Mirae Asset, USD) + Core/Satellite return separation
 #
-# DESIGN: Only HARD facts are stored (shares, cost). These don't change.
-# Current value & return are computed LIVE from yfinance every call,
-# so returns are always current -- no stale hardcoded valuations.
-# Last cost sync: 2026-06-18 (from brokerage app, USD)
+# DESIGN: Hard facts (shares, cost) live in data/holdings.json, not here.
+# This file only READS/WRITES that JSON and computes LIVE value/return via yfinance.
+# To update holdings via code, use record_buy()/record_sell() below --
+# they keep data/holdings.json as the single source of truth.
+
+import json
+from pathlib import Path
+from datetime import datetime
 
 import yfinance as yf
 
-# cost = total purchase amount in USD (does NOT change once bought)
-HOLDINGS = {
-    # --- CORE (hypothesis-validation capital) ---
-    "PL":   {"name": "Planet Labs",                          "shares": 8, "cost": 122.40, "group": "core"},
-    "COPX": {"name": "Global X Copper Miners ETF",           "shares": 1, "cost": 62.41,  "group": "core"},
-    "TSES": {"name": "Truth Social American Energy Security", "shares": 4, "cost": 104.92, "group": "core"},
-    "TSNF": {"name": "Truth Social American Next Frontiers",  "shares": 5, "cost": 136.50, "group": "core"},
+_DATA_PATH = Path(__file__).resolve().parent.parent / "data" / "holdings.json"
 
-    # --- SATELLITE (side bets, excluded from hypothesis validation) ---
-    "HOOD": {"name": "Robinhood Markets",   "shares": 1, "cost": 74.86,  "group": "satellite"},
-    "IONQ": {"name": "IonQ",                "shares": 1, "cost": 56.01,  "group": "satellite"},
-    "BMNR": {"name": "Bitmine",             "shares": 7, "cost": 121.66, "group": "satellite"},
-    "RXRX": {"name": "Recursion Pharma",    "shares": 6, "cost": 37.50,  "group": "satellite"},
-}
 
-CLOSED_POSITIONS = {
-    "URA": {
-        "name": "Uranium ETF",
-        "exit_date": "2026-06-18",
-        "realized_return_%": -7.65,
-        "exit_reason": "Iran deal triggered pre-defined failure condition. Original thesis closed.",
-    },
-}
+def _load_data():
+    with open(_DATA_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _save_data(data):
+    with open(_DATA_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+
+_data = _load_data()
+HOLDINGS = _data["holdings"]
+CLOSED_POSITIONS = _data["closed_positions"]
+LAST_COST_SYNC = _data.get("last_cost_sync")
 
 
 def _get_prices():
@@ -67,7 +65,6 @@ def get_separated_performance(prices=None):
     pos = get_position_returns(prices)
 
     def agg(group):
-        # only include positions with a valid live value
         cost = sum(p["cost"] for t, p in pos.items() if HOLDINGS[t]["group"] == group and p["value"] is not None)
         value = sum(p["value"] for t, p in pos.items() if HOLDINGS[t]["group"] == group and p["value"] is not None)
         ret = (value - cost) / cost * 100 if cost > 0 else 0.0
@@ -85,6 +82,116 @@ def get_separated_performance(prices=None):
         "total": {"cost": round(total_cost, 2), "value": round(total_value, 2), "return_%": round(total_ret, 2)},
         "core_capital_share_%": round(core["cost"] / total_cost * 100, 1) if total_cost > 0 else 0.0,
         "satellite_capital_share_%": round(sat["cost"] / total_cost * 100, 1) if total_cost > 0 else 0.0,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Trade recording -- for EXISTING tickers only.
+# Adding a brand-new ticker is intentionally NOT supported here: deciding
+# which thesis signal (A-H) it maps to, and whether it's core or satellite,
+# is a judgment call that belongs in a dedicated discussion, not a form.
+# ---------------------------------------------------------------------------
+
+class TradeError(Exception):
+    """Raised when a requested trade is invalid (e.g. selling more than held)."""
+    pass
+
+
+def record_buy(ticker, qty, amount):
+    """Add to an EXISTING position. qty=shares added, amount=USD spent (cost added).
+
+    Raises TradeError if ticker is not an existing holding.
+    """
+    if ticker not in HOLDINGS:
+        raise TradeError(
+            f"'{ticker}' is not an existing holding. Adding a brand-new ticker "
+            "requires a thesis discussion first, not this form."
+        )
+    if qty <= 0 or amount <= 0:
+        raise TradeError("Quantity and amount must both be positive for a buy.")
+
+    h = HOLDINGS[ticker]
+    h["shares"] = round(h["shares"] + qty, 6)
+    h["cost"] = round(h["cost"] + amount, 2)
+
+    _data["holdings"] = HOLDINGS
+    _data["last_cost_sync"] = datetime.now().date().isoformat()
+    _save_data(_data)
+    return dict(h)
+
+
+def record_sell(ticker, qty, current_price=None, exit_reason=None):
+    """Reduce or close an EXISTING position.
+
+    qty: number of shares sold.
+    current_price: live price at time of sale (required to compute realized
+        return on a full close; if omitted, a live fetch is attempted).
+    exit_reason: required when the sale fully closes the position -- this is
+        the pre-defined failure/exit condition being honored (see URA case).
+
+    Cost is reduced proportionally (average-cost-basis method), so the
+    remaining position's cost basis -- and therefore its return_% -- is
+    unaffected by a partial sale.
+
+    Raises TradeError if ticker doesn't exist or qty exceeds current shares.
+    """
+    if ticker not in HOLDINGS:
+        raise TradeError(f"'{ticker}' is not an existing holding.")
+    if qty <= 0:
+        raise TradeError("Quantity must be positive for a sell.")
+
+    h = HOLDINGS[ticker]
+    if qty > h["shares"] + 1e-9:
+        raise TradeError(
+            f"Cannot sell {qty} shares of {ticker}; only {h['shares']} held."
+        )
+
+    is_full_close = qty >= h["shares"] - 1e-9
+
+    if current_price is None:
+        try:
+            current_price = float(yf.Ticker(ticker).fast_info["lastPrice"])
+        except Exception:
+            raise TradeError(
+                f"Could not fetch a live price for {ticker}; pass current_price explicitly."
+            )
+
+    proceeds = qty * current_price
+    cost_removed = (qty / h["shares"]) * h["cost"]
+    realized_return_pct = (
+        (proceeds - cost_removed) / cost_removed * 100 if cost_removed > 0 else 0.0
+    )
+
+    if is_full_close:
+        if not exit_reason:
+            raise TradeError(
+                "Closing a position fully requires an exit_reason "
+                "(the failure/exit condition being honored)."
+            )
+        CLOSED_POSITIONS[ticker] = {
+            "name": h["name"],
+            "exit_date": datetime.now().date().isoformat(),
+            "realized_return_%": round(realized_return_pct, 2),
+            "exit_reason": exit_reason,
+        }
+        del HOLDINGS[ticker]
+    else:
+        h["shares"] = round(h["shares"] - qty, 6)
+        h["cost"] = round(h["cost"] - cost_removed, 2)
+
+    _data["holdings"] = HOLDINGS
+    _data["closed_positions"] = CLOSED_POSITIONS
+    _data["last_cost_sync"] = datetime.now().date().isoformat()
+    _save_data(_data)
+
+    return {
+        "ticker": ticker,
+        "qty_sold": qty,
+        "price": round(current_price, 2),
+        "proceeds": round(proceeds, 2),
+        "cost_removed": round(cost_removed, 2),
+        "realized_return_%": round(realized_return_pct, 2),
+        "full_close": is_full_close,
     }
 
 

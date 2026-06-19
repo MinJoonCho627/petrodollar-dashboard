@@ -1,0 +1,61 @@
+{
+  "holdings": {
+    "PL": {
+      "name": "Planet Labs",
+      "shares": 8,
+      "cost": 122.4,
+      "group": "core"
+    },
+    "COPX": {
+      "name": "Global X Copper Miners ETF",
+      "shares": 1,
+      "cost": 62.41,
+      "group": "core"
+    },
+    "TSES": {
+      "name": "Truth Social American Energy Security",
+      "shares": 4,
+      "cost": 104.92,
+      "group": "core"
+    },
+    "TSNF": {
+      "name": "Truth Social American Next Frontiers",
+      "shares": 5,
+      "cost": 136.5,
+      "group": "core"
+    },
+    "HOOD": {
+      "name": "Robinhood Markets",
+      "shares": 1,
+      "cost": 74.86,
+      "group": "satellite"
+    },
+    "IONQ": {
+      "name": "IonQ",
+      "shares": 1,
+      "cost": 56.01,
+      "group": "satellite"
+    },
+    "BMNR": {
+      "name": "Bitmine",
+      "shares": 7,
+      "cost": 121.66,
+      "group": "satellite"
+    },
+    "RXRX": {
+      "name": "Recursion Pharma",
+      "shares": 6,
+      "cost": 37.5,
+      "group": "satellite"
+    }
+  },
+  "closed_positions": {
+    "URA": {
+      "name": "Uranium ETF",
+      "exit_date": "2026-06-18",
+      "realized_return_%": -7.65,
+      "exit_reason": "Iran deal triggered pre-defined failure condition. Original thesis closed."
+    }
+  },
+  "last_cost_sync": "2026-06-19"
+}
