@@ -2,59 +2,91 @@
   "holdings": {
     "PL": {
       "name": "Planet Labs",
-      "shares": 8,
-      "cost": 122.4,
       "group": "core",
-      "buy_date": "2025-10-14"
+      "lots": [
+        {
+          "shares": 8,
+          "cost": 122.4,
+          "buy_date": "2025-10-14"
+        }
+      ]
     },
     "COPX": {
       "name": "Global X Copper Miners ETF",
-      "shares": 1,
-      "cost": 62.41,
       "group": "core",
-      "buy_date": "2025-11-13"
+      "lots": [
+        {
+          "shares": 1,
+          "cost": 62.41,
+          "buy_date": "2025-11-13"
+        }
+      ]
     },
     "TSES": {
       "name": "Truth Social American Energy Security",
-      "shares": 4,
-      "cost": 104.92,
       "group": "core",
-      "buy_date": "2026-01-22"
+      "lots": [
+        {
+          "shares": 4,
+          "cost": 104.92,
+          "buy_date": "2026-01-22"
+        }
+      ]
     },
     "TSNF": {
       "name": "Truth Social American Next Frontiers",
-      "shares": 5,
-      "cost": 136.5,
       "group": "core",
-      "buy_date": "2026-01-22"
+      "lots": [
+        {
+          "shares": 5,
+          "cost": 136.5,
+          "buy_date": "2026-01-22"
+        }
+      ]
     },
     "HOOD": {
       "name": "Robinhood Markets",
-      "shares": 1,
-      "cost": 74.86,
       "group": "satellite",
-      "buy_date": "2026-05-28"
+      "lots": [
+        {
+          "shares": 1,
+          "cost": 74.86,
+          "buy_date": "2026-05-28"
+        }
+      ]
     },
     "IONQ": {
       "name": "IonQ",
-      "shares": 1,
-      "cost": 56.01,
       "group": "satellite",
-      "buy_date": "2025-11-12"
+      "lots": [
+        {
+          "shares": 1,
+          "cost": 56.01,
+          "buy_date": "2025-11-12"
+        }
+      ]
     },
     "BMNR": {
       "name": "Bitmine",
-      "shares": 7,
-      "cost": 121.66,
       "group": "satellite",
-      "buy_date": "2026-06-17"
+      "lots": [
+        {
+          "shares": 7,
+          "cost": 121.66,
+          "buy_date": "2026-06-17"
+        }
+      ]
     },
     "RXRX": {
       "name": "Recursion Pharma",
-      "shares": 6,
-      "cost": 37.5,
       "group": "satellite",
-      "buy_date": "2025-10-14"
+      "lots": [
+        {
+          "shares": 6,
+          "cost": 37.5,
+          "buy_date": "2025-10-14"
+        }
+      ]
     }
   },
   "closed_positions": {
@@ -65,5 +97,5 @@
       "exit_reason": "Iran deal triggered pre-defined failure condition. Original thesis closed."
     }
   },
-  "last_cost_sync": "2026-06-19"
+  "last_cost_sync": "2026-06-21"
 }

@@ -384,6 +384,7 @@ with tab5:
         record_buy as _record_buy,
         record_sell as _record_sell,
         TradeError as _TradeError,
+        get_total_shares as _get_total_shares,
     )
 
     data_dir = Path("data")
@@ -473,7 +474,7 @@ with tab5:
                 st.session_state.tab5_sell_form_id = 0
             _sid = st.session_state.tab5_sell_form_id
 
-            current_shares = _HOLDINGS[trade_ticker]["shares"]
+            current_shares = _get_total_shares(trade_ticker)
             st.caption(f"현재 보유: {current_shares} shares")
             sell_qty = st.number_input(
                 "매도 수량", min_value=0.0, max_value=float(current_shares), step=0.01, key=f"tab5_sell_qty_{_sid}"

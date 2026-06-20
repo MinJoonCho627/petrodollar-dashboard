@@ -1,10 +1,15 @@
 # analysis/holdings.py
 # Actual brokerage holdings (Mirae Asset, USD) + Core/Satellite return separation
 #
-# DESIGN: Hard facts (shares, cost) live in data/holdings.json, not here.
-# This file only READS/WRITES that JSON and computes LIVE value/return via yfinance.
-# To update holdings via code, use record_buy()/record_sell() below --
-# they keep data/holdings.json as the single source of truth.
+# DESIGN: Each ticker holds a list of LOTS -- one lot per buy transaction,
+# each with its own shares/cost/buy_date. This keeps benchmark comparisons
+# (see get_benchmark_comparison) exact even when a position was built up
+# over multiple purchases on different dates, instead of approximating with
+# a single averaged buy_date. shares/cost at the position level are derived
+# (summed) from lots, never stored directly.
+#
+# Hard facts (lots) live in data/holdings.json, not here. This file only
+# READS/WRITES that JSON and computes LIVE value/return via yfinance.
 
 import json
 from pathlib import Path
@@ -31,6 +36,19 @@ CLOSED_POSITIONS = _data["closed_positions"]
 LAST_COST_SYNC = _data.get("last_cost_sync")
 
 
+def _total_shares(ticker):
+    return sum(lot["shares"] for lot in HOLDINGS[ticker]["lots"])
+
+
+def get_total_shares(ticker):
+    """Public accessor: total shares held for a ticker, summed across lots."""
+    return _total_shares(ticker)
+
+
+def _total_cost(ticker):
+    return sum(lot["cost"] for lot in HOLDINGS[ticker]["lots"])
+
+
 def _get_prices():
     """Fetch live prices for all held tickers. Returns {ticker: price or None}."""
     prices = {}
@@ -43,19 +61,21 @@ def _get_prices():
 
 
 def get_position_returns(prices=None):
-    """Per-position live return. Falls back gracefully if a price is missing."""
+    """Per-position live return. shares/cost are summed across all lots."""
     if prices is None:
         prices = _get_prices()
     out = {}
     for ticker, h in HOLDINGS.items():
+        shares = _total_shares(ticker)
+        cost = _total_cost(ticker)
         price = prices.get(ticker)
         if price is None:
-            out[ticker] = {"name": h["name"], "group": h["group"], "cost": h["cost"],
+            out[ticker] = {"name": h["name"], "group": h["group"], "cost": round(cost, 2),
                            "value": None, "return_%": None, "price": None}
             continue
-        value = h["shares"] * price
-        ret = (value - h["cost"]) / h["cost"] * 100 if h["cost"] > 0 else 0.0
-        out[ticker] = {"name": h["name"], "group": h["group"], "cost": h["cost"],
+        value = shares * price
+        ret = (value - cost) / cost * 100 if cost > 0 else 0.0
+        out[ticker] = {"name": h["name"], "group": h["group"], "cost": round(cost, 2),
                        "value": round(value, 2), "return_%": round(ret, 2), "price": round(price, 2)}
     return out
 
@@ -87,8 +107,9 @@ def get_separated_performance(prices=None):
 
 # ---------------------------------------------------------------------------
 # Benchmark comparison -- was the Core return actually alpha, or just beta?
-# For each holding, compute what its cost would be worth today if the SAME
-# dollars had been put into a benchmark (SPY/QQQ) on the SAME buy_date.
+# Computed PER LOT: each lot's cost is compared to investing the same dollars
+# in the benchmark on that lot's own buy_date, then summed across lots/tickers.
+# This stays exact even when a position was built from multiple purchases.
 # ---------------------------------------------------------------------------
 
 def _get_entry_price(ticker, date_str):
@@ -98,7 +119,6 @@ def _get_entry_price(ticker, date_str):
         if df.empty:
             return None
         close = df["Close"].iloc[0]
-        # yfinance can return a 1-col DataFrame slice (Series) or scalar
         return float(close.iloc[0]) if hasattr(close, "iloc") else float(close)
     except Exception:
         return None
@@ -106,21 +126,19 @@ def _get_entry_price(ticker, date_str):
 
 def get_benchmark_comparison(benchmark_tickers=("SPY", "QQQ")):
     """
-    Returns, for each benchmark ticker, what Core/Satellite/Total cost would
-    be worth today if invested in that benchmark on each position's own
-    buy_date, instead of the actual holding. Positions without a buy_date
-    are skipped (and reported separately) since no fair comparison is possible.
-
-    {
-      "SPY": {"core": {...}, "satellite": {...}, "total": {...}},
-      "QQQ": {...},
-      "skipped_no_buy_date": [...]
-    }
+    For each lot (not just each ticker), computes what its cost would be
+    worth today if invested in the benchmark on that LOT's own buy_date.
+    Lots without a buy_date are skipped (and reported) since no fair
+    comparison is possible.
     """
     live_prices = _get_prices()
     own_returns = get_position_returns(live_prices)
 
-    skipped = [t for t, h in HOLDINGS.items() if "buy_date" not in h]
+    skipped = []
+    for ticker, h in HOLDINGS.items():
+        for lot in h["lots"]:
+            if not lot.get("buy_date"):
+                skipped.append({"ticker": ticker, "shares": lot["shares"], "cost": lot["cost"]})
 
     result = {}
     for bench in benchmark_tickers:
@@ -134,24 +152,38 @@ def get_benchmark_comparison(benchmark_tickers=("SPY", "QQQ")):
         per_group_bench_value = {"core": 0.0, "satellite": 0.0}
         per_group_actual_value = {"core": 0.0, "satellite": 0.0}
 
+        entry_price_cache = {}
+
         for ticker, h in HOLDINGS.items():
-            if "buy_date" not in h or bench_current_price is None:
-                continue
             actual = own_returns.get(ticker, {})
-            if actual.get("value") is None:
+            if actual.get("value") is None or bench_current_price is None:
                 continue
 
-            entry_price = _get_entry_price(bench, h["buy_date"])
-            if entry_price is None or entry_price == 0:
+            ticker_total_cost = _total_cost(ticker)
+            if ticker_total_cost <= 0:
                 continue
 
             group = h["group"]
-            bench_shares_equiv = h["cost"] / entry_price
-            bench_value = bench_shares_equiv * bench_current_price
+            for lot in h["lots"]:
+                if not lot.get("buy_date"):
+                    continue
 
-            per_group_cost[group] += h["cost"]
-            per_group_bench_value[group] += bench_value
-            per_group_actual_value[group] += actual["value"]
+                cache_key = (bench, lot["buy_date"])
+                if cache_key not in entry_price_cache:
+                    entry_price_cache[cache_key] = _get_entry_price(bench, lot["buy_date"])
+                entry_price = entry_price_cache[cache_key]
+                if entry_price is None or entry_price == 0:
+                    continue
+
+                lot_cost = lot["cost"]
+                bench_shares_equiv = lot_cost / entry_price
+                bench_value = bench_shares_equiv * bench_current_price
+
+                lot_actual_value = actual["value"] * (lot_cost / ticker_total_cost)
+
+                per_group_cost[group] += lot_cost
+                per_group_bench_value[group] += bench_value
+                per_group_actual_value[group] += lot_actual_value
 
         def _summarize(group):
             cost = per_group_cost[group]
@@ -194,7 +226,7 @@ def get_benchmark_comparison(benchmark_tickers=("SPY", "QQQ")):
             },
         }
 
-    result["skipped_no_buy_date"] = skipped
+    result["skipped_lots_no_buy_date"] = skipped
     return result
 
 
@@ -210,10 +242,11 @@ class TradeError(Exception):
     pass
 
 
-def record_buy(ticker, qty, amount):
-    """Add to an EXISTING position. qty=shares added, amount=USD spent (cost added).
+def record_buy(ticker, qty, amount, buy_date=None):
+    """Add a NEW LOT to an EXISTING position. qty=shares, amount=USD spent.
 
-    Raises TradeError if ticker is not an existing holding.
+    buy_date defaults to today. Each call creates a separate lot so the
+    benchmark comparison stays exact for multi-purchase positions.
     """
     if ticker not in HOLDINGS:
         raise TradeError(
@@ -223,43 +256,36 @@ def record_buy(ticker, qty, amount):
     if qty <= 0 or amount <= 0:
         raise TradeError("Quantity and amount must both be positive for a buy.")
 
-    h = HOLDINGS[ticker]
-    h["shares"] = round(h["shares"] + qty, 6)
-    h["cost"] = round(h["cost"] + amount, 2)
+    if buy_date is None:
+        buy_date = datetime.now().date().isoformat()
+
+    new_lot = {"shares": round(qty, 6), "cost": round(amount, 2), "buy_date": buy_date}
+    HOLDINGS[ticker]["lots"].append(new_lot)
 
     _data["holdings"] = HOLDINGS
     _data["last_cost_sync"] = datetime.now().date().isoformat()
     _save_data(_data)
-    return dict(h)
+
+    return {
+        "ticker": ticker,
+        "new_lot": new_lot,
+        "shares": round(_total_shares(ticker), 6),
+        "cost": round(_total_cost(ticker), 2),
+    }
 
 
 def record_sell(ticker, qty, current_price=None, exit_reason=None):
-    """Reduce or close an EXISTING position.
-
-    qty: number of shares sold.
-    current_price: live price at time of sale (required to compute realized
-        return on a full close; if omitted, a live fetch is attempted).
-    exit_reason: required when the sale fully closes the position -- this is
-        the pre-defined failure/exit condition being honored (see URA case).
-
-    Cost is reduced proportionally (average-cost-basis method), so the
-    remaining position's cost basis -- and therefore its return_% -- is
-    unaffected by a partial sale.
-
-    Raises TradeError if ticker doesn't exist or qty exceeds current shares.
-    """
+    """Reduce or close an EXISTING position, FIFO across lots (oldest lot sold first)."""
     if ticker not in HOLDINGS:
         raise TradeError(f"'{ticker}' is not an existing holding.")
     if qty <= 0:
         raise TradeError("Quantity must be positive for a sell.")
 
-    h = HOLDINGS[ticker]
-    if qty > h["shares"] + 1e-9:
-        raise TradeError(
-            f"Cannot sell {qty} shares of {ticker}; only {h['shares']} held."
-        )
+    total_shares = _total_shares(ticker)
+    if qty > total_shares + 1e-9:
+        raise TradeError(f"Cannot sell {qty} shares of {ticker}; only {total_shares} held.")
 
-    is_full_close = qty >= h["shares"] - 1e-9
+    is_full_close = qty >= total_shares - 1e-9
 
     if current_price is None:
         try:
@@ -269,10 +295,34 @@ def record_sell(ticker, qty, current_price=None, exit_reason=None):
                 f"Could not fetch a live price for {ticker}; pass current_price explicitly."
             )
 
+    lots = HOLDINGS[ticker]["lots"]
+    remaining_to_sell = qty
+    total_cost_removed = 0.0
+    new_lots = []
+
+    for lot in lots:
+        if remaining_to_sell <= 1e-9:
+            new_lots.append(lot)
+            continue
+
+        if lot["shares"] <= remaining_to_sell + 1e-9:
+            total_cost_removed += lot["cost"]
+            remaining_to_sell -= lot["shares"]
+        else:
+            fraction_sold = remaining_to_sell / lot["shares"]
+            cost_removed_from_lot = fraction_sold * lot["cost"]
+            total_cost_removed += cost_removed_from_lot
+
+            new_lots.append({
+                "shares": round(lot["shares"] - remaining_to_sell, 6),
+                "cost": round(lot["cost"] - cost_removed_from_lot, 2),
+                "buy_date": lot["buy_date"],
+            })
+            remaining_to_sell = 0.0
+
     proceeds = qty * current_price
-    cost_removed = (qty / h["shares"]) * h["cost"]
     realized_return_pct = (
-        (proceeds - cost_removed) / cost_removed * 100 if cost_removed > 0 else 0.0
+        (proceeds - total_cost_removed) / total_cost_removed * 100 if total_cost_removed > 0 else 0.0
     )
 
     if is_full_close:
@@ -282,15 +332,14 @@ def record_sell(ticker, qty, current_price=None, exit_reason=None):
                 "(the failure/exit condition being honored)."
             )
         CLOSED_POSITIONS[ticker] = {
-            "name": h["name"],
+            "name": HOLDINGS[ticker]["name"],
             "exit_date": datetime.now().date().isoformat(),
             "realized_return_%": round(realized_return_pct, 2),
             "exit_reason": exit_reason,
         }
         del HOLDINGS[ticker]
     else:
-        h["shares"] = round(h["shares"] - qty, 6)
-        h["cost"] = round(h["cost"] - cost_removed, 2)
+        HOLDINGS[ticker]["lots"] = new_lots
 
     _data["holdings"] = HOLDINGS
     _data["closed_positions"] = CLOSED_POSITIONS
@@ -302,7 +351,7 @@ def record_sell(ticker, qty, current_price=None, exit_reason=None):
         "qty_sold": qty,
         "price": round(current_price, 2),
         "proceeds": round(proceeds, 2),
-        "cost_removed": round(cost_removed, 2),
+        "cost_removed": round(total_cost_removed, 2),
         "realized_return_%": round(realized_return_pct, 2),
         "full_close": is_full_close,
     }
