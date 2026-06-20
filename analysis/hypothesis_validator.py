@@ -108,7 +108,7 @@ class HypothesisValidator:
         print("HYPOTHESIS VALIDATION (2026-06-18)")
         print("=" * 70)
         print(f"\nOverall Confidence: {result['overall_confidence_%']}%")
-        print(f"Bullish Signals: {result['bullish_signals']}/5")
+        print(f"Bullish Signals: {result['bullish_signals']}/4")
         print(f"Status: {result['hypothesis_status']}")
         
         print("\n" + "─" * 70)
@@ -129,8 +129,9 @@ class HypothesisValidator:
 if __name__ == "__main__":
     validator = HypothesisValidator()
     
+    # NOTE: A-axis (USD Index) was removed 2026-06-18 -- HOOD was its only
+    # exposed position, and HOOD moved to Satellite. Only B/D/F/H are scored.
     current_signals = {
-        "A": 28.18,
         "B": 17.5,
         "D": 40.0,
         "F": 35.0,
