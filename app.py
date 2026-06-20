@@ -322,9 +322,54 @@ with tab4:
             r = p["return_%"]
             rtxt = f"{r:+.2f}%" if r is not None else "N/A"
             st.write(f"• {ticker}: {rtxt} (Not validated)")
-    
+
     st.divider()
-    
+
+    # 5b. Benchmark Comparison -- is Core return alpha, or just market beta?
+    st.subheader("📐 Benchmark Comparison (vs SPY / QQQ)")
+    st.caption("Each position's cost compared to investing the same amount in the benchmark on its own buy date.")
+
+    from analysis.holdings import get_benchmark_comparison as _gbc
+
+    with st.spinner("Computing benchmark comparison..."):
+        bench_result = _gbc()
+
+    for bench_name in ["SPY", "QQQ"]:
+        bench_data = bench_result.get(bench_name)
+        if not bench_data:
+            continue
+        st.markdown(f"**vs {bench_name}**")
+        bc1, bc2, bc3 = st.columns(3)
+        with bc1:
+            core_b = bench_data["core"]
+            st.metric(
+                "Core: Actual vs Benchmark",
+                f"{core_b['actual_return_%']:+.2f}%",
+                f"{core_b['alpha_pp']:+.2f}pp vs {bench_name} ({core_b['benchmark_return_%']:+.2f}%)"
+                if core_b["alpha_pp"] is not None else "N/A",
+            )
+        with bc2:
+            sat_b = bench_data["satellite"]
+            st.metric(
+                "Satellite: Actual vs Benchmark",
+                f"{sat_b['actual_return_%']:+.2f}%",
+                f"{sat_b['alpha_pp']:+.2f}pp vs {bench_name} ({sat_b['benchmark_return_%']:+.2f}%)"
+                if sat_b["alpha_pp"] is not None else "N/A",
+            )
+        with bc3:
+            total_b = bench_data["total"]
+            st.metric(
+                "Total: Actual vs Benchmark",
+                f"{total_b['actual_return_%']:+.2f}%",
+                f"{total_b['alpha_pp']:+.2f}pp vs {bench_name} ({total_b['benchmark_return_%']:+.2f}%)"
+                if total_b["alpha_pp"] is not None else "N/A",
+            )
+
+    if bench_result.get("skipped_no_buy_date"):
+        st.caption(f"⚠️ No buy_date on record, excluded from comparison: {', '.join(bench_result['skipped_no_buy_date'])}")
+
+    st.divider()
+
     # 6. Next Review Date
     st.info("**Next Quarterly Review:** 2026-09-18 (3 months)")
     st.caption("Portfolio updates trigger re-validation at Tab 5")

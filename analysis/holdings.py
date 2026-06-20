@@ -86,6 +86,119 @@ def get_separated_performance(prices=None):
 
 
 # ---------------------------------------------------------------------------
+# Benchmark comparison -- was the Core return actually alpha, or just beta?
+# For each holding, compute what its cost would be worth today if the SAME
+# dollars had been put into a benchmark (SPY/QQQ) on the SAME buy_date.
+# ---------------------------------------------------------------------------
+
+def _get_entry_price(ticker, date_str):
+    """Closing price on date_str, or the next available trading day."""
+    try:
+        df = yf.download(ticker, start=date_str, progress=False, timeout=10)
+        if df.empty:
+            return None
+        close = df["Close"].iloc[0]
+        # yfinance can return a 1-col DataFrame slice (Series) or scalar
+        return float(close.iloc[0]) if hasattr(close, "iloc") else float(close)
+    except Exception:
+        return None
+
+
+def get_benchmark_comparison(benchmark_tickers=("SPY", "QQQ")):
+    """
+    Returns, for each benchmark ticker, what Core/Satellite/Total cost would
+    be worth today if invested in that benchmark on each position's own
+    buy_date, instead of the actual holding. Positions without a buy_date
+    are skipped (and reported separately) since no fair comparison is possible.
+
+    {
+      "SPY": {"core": {...}, "satellite": {...}, "total": {...}},
+      "QQQ": {...},
+      "skipped_no_buy_date": [...]
+    }
+    """
+    live_prices = _get_prices()
+    own_returns = get_position_returns(live_prices)
+
+    skipped = [t for t, h in HOLDINGS.items() if "buy_date" not in h]
+
+    result = {}
+    for bench in benchmark_tickers:
+        bench_current_price = None
+        try:
+            bench_current_price = float(yf.Ticker(bench).fast_info["lastPrice"])
+        except Exception:
+            pass
+
+        per_group_cost = {"core": 0.0, "satellite": 0.0}
+        per_group_bench_value = {"core": 0.0, "satellite": 0.0}
+        per_group_actual_value = {"core": 0.0, "satellite": 0.0}
+
+        for ticker, h in HOLDINGS.items():
+            if "buy_date" not in h or bench_current_price is None:
+                continue
+            actual = own_returns.get(ticker, {})
+            if actual.get("value") is None:
+                continue
+
+            entry_price = _get_entry_price(bench, h["buy_date"])
+            if entry_price is None or entry_price == 0:
+                continue
+
+            group = h["group"]
+            bench_shares_equiv = h["cost"] / entry_price
+            bench_value = bench_shares_equiv * bench_current_price
+
+            per_group_cost[group] += h["cost"]
+            per_group_bench_value[group] += bench_value
+            per_group_actual_value[group] += actual["value"]
+
+        def _summarize(group):
+            cost = per_group_cost[group]
+            bench_val = per_group_bench_value[group]
+            actual_val = per_group_actual_value[group]
+            bench_ret = (bench_val - cost) / cost * 100 if cost > 0 else None
+            actual_ret = (actual_val - cost) / cost * 100 if cost > 0 else None
+            alpha = (actual_ret - bench_ret) if (bench_ret is not None and actual_ret is not None) else None
+            return {
+                "cost": round(cost, 2),
+                "benchmark_value": round(bench_val, 2),
+                "benchmark_return_%": round(bench_ret, 2) if bench_ret is not None else None,
+                "actual_value": round(actual_val, 2),
+                "actual_return_%": round(actual_ret, 2) if actual_ret is not None else None,
+                "alpha_pp": round(alpha, 2) if alpha is not None else None,
+            }
+
+        core_summary = _summarize("core")
+        sat_summary = _summarize("satellite")
+        total_cost = core_summary["cost"] + sat_summary["cost"]
+        total_bench_val = core_summary["benchmark_value"] + sat_summary["benchmark_value"]
+        total_actual_val = core_summary["actual_value"] + sat_summary["actual_value"]
+        total_bench_ret = (total_bench_val - total_cost) / total_cost * 100 if total_cost > 0 else None
+        total_actual_ret = (total_actual_val - total_cost) / total_cost * 100 if total_cost > 0 else None
+        total_alpha = (
+            (total_actual_ret - total_bench_ret)
+            if (total_bench_ret is not None and total_actual_ret is not None) else None
+        )
+
+        result[bench] = {
+            "core": core_summary,
+            "satellite": sat_summary,
+            "total": {
+                "cost": round(total_cost, 2),
+                "benchmark_value": round(total_bench_val, 2),
+                "benchmark_return_%": round(total_bench_ret, 2) if total_bench_ret is not None else None,
+                "actual_value": round(total_actual_val, 2),
+                "actual_return_%": round(total_actual_ret, 2) if total_actual_ret is not None else None,
+                "alpha_pp": round(total_alpha, 2) if total_alpha is not None else None,
+            },
+        }
+
+    result["skipped_no_buy_date"] = skipped
+    return result
+
+
+# ---------------------------------------------------------------------------
 # Trade recording -- for EXISTING tickers only.
 # Adding a brand-new ticker is intentionally NOT supported here: deciding
 # which thesis signal (A-H) it maps to, and whether it's core or satellite,
