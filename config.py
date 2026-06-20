@@ -1,21 +1,24 @@
 # config.py
 # Petrodollar Hegemony Analysis - Portfolio Configuration
 
+# NOTE: URA removed (position closed 2026-06-18). PORTFOLIO reflects ACTIVE
+# holdings only -- see data/holdings.json for the live source of truth.
 PORTFOLIO = {
     # Space Sector
     "PL": {"name": "Planet Labs", "sector": "space"},
     "IONQ": {"name": "IonQ", "sector": "space"},
-    
+
     # Finance Sector
     "HOOD": {"name": "Robinhood Markets", "sector": "finance"},
     "BMNR": {"name": "Bitmine", "sector": "finance"},
-    
+
     # Energy Sector
     "COPX": {"name": "Copper Miners ETF", "sector": "energy"},
-    "URA": {"name": "Uranium ETF", "sector": "energy"},
-    "TSES": {"name": "TechX Energy", "sector": "energy"},
-    "TSNF": {"name": "Transocean", "sector": "energy"},
-    
+    "TSES": {"name": "Truth Social American Energy Security ETF", "sector": "energy"},
+
+    # Tech/Space Frontier (D-axis -- NOT energy; ETF basket is PL/Intuitive Machines/Micron/Marvell)
+    "TSNF": {"name": "Truth Social American Next Frontiers ETF", "sector": "space"},
+
     # Technology
     "RXRX": {"name": "Recursion Pharma", "sector": "technology"},
 }
