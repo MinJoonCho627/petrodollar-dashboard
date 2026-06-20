@@ -108,7 +108,7 @@ SIGNAL_DEFINITIONS = {
         "unit": "%",
         "bullish_threshold": 25.0,
         "bearish_threshold": 10.0,
-        "weight": 0.20,
+        "weight": 0.20,  # COPX exposure
         "data_source": "USTR announcements, Trump statements",
         "update_frequency": "event-driven",
         "components": [
@@ -131,7 +131,7 @@ SIGNAL_DEFINITIONS = {
         "unit": "%",
         "bullish_threshold": 65.0,
         "bearish_threshold": 35.0,
-        "weight": 0.20,
+        "weight": 0.20,  # PL, TSNF exposure
         "data_source": "Chip export controls, space budget, defense posture, Taiwan/TSMC, AI capability gap",
         "update_frequency": "monthly/event-driven",
         "components": [
@@ -155,7 +155,7 @@ SIGNAL_DEFINITIONS = {
         "unit": "%",
         "bullish_threshold": 55.0,
         "bearish_threshold": 30.0,
-        "weight": 0.20,
+        "weight": 0.50,  # COPX, TSES, TSNF exposure -- core bet
         "data_source": "EIA, WTI (CL=F), OPEC+ decisions, China trade",
         "update_frequency": "daily (WTI), weekly (EIA), event-driven",
         "wti_baseline": 74.75,
@@ -182,7 +182,7 @@ SIGNAL_DEFINITIONS = {
         "unit": "%",
         "bullish_threshold": 4.0,
         "bearish_threshold": 5.5,
-        "weight": 0.20,
+        "weight": 0.10,  # Synthetic background indicator
         "data_source": "NBS GDP, Caixin PMI, China customs, unemployment surveys",
         "update_frequency": "quarterly (GDP), monthly (PMI), event-driven",
         "sub_indicators": {
@@ -212,40 +212,4 @@ BASELINE_SNAPSHOT = {
         "H": 5.0,
     },
     "notes": "Initial hypothesis setting date",
-}
-
-# ═══════════════════════════════════════════════════════════════════════
-# SIGNAL DEFINITIONS: 2026-06-18 Baseline
-# ═══════════════════════════════════════════════════════════════════════
-
-SIGNAL_DEFINITIONS = {
-    "B": {
-        "name": "China Tariff",
-        "current_value": 17.5,
-        "bullish_threshold": 25.0,
-        "bearish_threshold": 10.0,
-        "weight": 0.20,  # COPX 노출 (1/4)
-    },
-    "D": {
-        "name": "Tech & Frontier Dominance",
-        "current_value": 40.0,
-        "bullish_threshold": 65.0,
-        "bearish_threshold": 35.0,
-        "weight": 0.20,  # PL 노출 (1/4)
-    },
-    "F": {
-        "name": "Energy Decoupling",
-        "current_value": 35.0,
-        "bullish_threshold": 55.0,
-        "bearish_threshold": 30.0,
-        "weight": 0.50,  # COPX, TSES, TSNF 노출 (3/4) - 핵심 베팅
-        "wti_baseline": 74.75,
-    },
-    "H": {
-        "name": "China Growth Pressure",
-        "current_value": 5.0,
-        "bullish_threshold": 4.0,
-        "bearish_threshold": 5.5,
-        "weight": 0.10,  # Synthetic 배경 지표
-    },
 }
