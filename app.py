@@ -328,6 +328,12 @@ with tab4:
     # 5b. Benchmark Comparison -- is Core return alpha, or just market beta?
     st.subheader("📐 Benchmark Comparison (vs SPY / QQQ)")
     st.caption("Each position's cost compared to investing the same amount in the benchmark on its own buy date.")
+    st.warning(
+        "⚠️ Sample limitation: Core is only 4 positions, shortest held ~5 months, "
+        "all within a single market regime (broad uptrend). A positive alpha here "
+        "is directional evidence, NOT confirmed proof of skill -- treat as a progress "
+        "indicator until the 2028-02 hypothesis verdict, with more data across regimes."
+    )
 
     from analysis.holdings import get_benchmark_comparison as _gbc
 

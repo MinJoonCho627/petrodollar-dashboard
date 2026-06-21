@@ -130,6 +130,12 @@ def get_benchmark_comparison(benchmark_tickers=("SPY", "QQQ")):
     worth today if invested in the benchmark on that LOT's own buy_date.
     Lots without a buy_date are skipped (and reported) since no fair
     comparison is possible.
+
+    CAUTION -- sample size: Core is only 4 positions, shortest held ~5
+    months, all within a single market regime (broad uptrend since entry).
+    A positive alpha_pp here is directional evidence, not confirmed proof
+    of skill. Do not treat as validated until more snapshots accumulate
+    across different regimes, ahead of the 2028-02 hypothesis verdict.
     """
     live_prices = _get_prices()
     own_returns = get_position_returns(live_prices)
