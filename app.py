@@ -220,14 +220,14 @@ with tab4:
     
     with col1:
         st.metric(
-            "Hypothesis Confidence",
+            "Theme Visibility Score",
             f"{validation_result['overall_confidence_%']}%",
-            "Target: 75%"
+            "Target: 75% (progress indicator, not a probability)"
         )
     
     with col2:
         st.metric(
-            "Core Return (Hypothesis)",
+            "Core Return",
             f"{perf['core']['return_%']:+.1f}%",
             f"Capital: {perf['core_capital_share_%']}% of total"
         )
