@@ -47,6 +47,21 @@ print("✅ Config loaded successfully")
 # INITIAL HYPOTHESIS: Trump Indo-Pacific Dominance Strategy
 # ═══════════════════════════════════════════════════════════════════════
 
+# ─────────────────────────────────────────────────────────────────────
+# IMPORTANT -- what this is and is NOT:
+# This is NOT a scientifically falsifiable hypothesis test. It is a macro
+# THEMATIC POSITIONING framework operated under predefined risk rules.
+# The "signals" and "Theme Visibility Score" below track how visible the
+# China-decoupling theme is in markets -- they are observational, not a
+# probability that the thesis is "true." There is intentionally no single
+# kill-condition that falsifies the macro view; the discipline lives at the
+# position level (predefined exit rules, honored even at a loss -- see URA).
+# Judge this project by risk management and rule-adherence, not by whether
+# a broad macro claim was "proven."
+#
+# The name INITIAL_HYPOTHESIS is kept for code-stability reasons, but read it
+# as "initial thesis / macro positioning," not "scientific hypothesis."
+# ─────────────────────────────────────────────────────────────────────
 INITIAL_HYPOTHESIS = {
     "name": "Trump Indo-Pacific Dominance Strategy",
     "version": "1.0",
