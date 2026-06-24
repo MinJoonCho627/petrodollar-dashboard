@@ -85,9 +85,22 @@ INITIAL_HYPOTHESIS = {
         {"id": "H", "signal": "China growth rate < 4%", "weight": 0.10},
     ],
     
+    # TRUE failure conditions: falsifiable, single-direction, would actually
+    # close out the hypothesis. NOTE: neither is auto-checked by code -- the
+    # person must judge against these manually, same as the URA exit was.
     "failure_conditions": [
-        {"id": "C", "condition": "Portfolio drawdown > -20%"},
-        {"id": "D_fail", "condition": "Trade deal WITH decoupling reversal (tariff cut + NO China financial opening + yuan strength). NOTE: a deal where China submits (opens financial markets, USD strengthens) = thesis SUCCESS, not failure."},
+        {"id": "C", "condition": "Portfolio drawdown > -20% (not auto-monitored; requires manual check at each snapshot)"},
+    ],
+
+    # Thematic monitoring signals (NOT failure conditions): observational
+    # indicators of whether the China-decoupling theme is strengthening or
+    # weakening. Demoted from failure_conditions on 2026-06-24 -- the original
+    # D_fail condition was bidirectional (a tariff cut could be read as either
+    # success OR failure depending on whether China "submitted"), meaning it
+    # could never actually falsify the thesis. It is kept here as context,
+    # not as a kill condition.
+    "thematic_monitoring_signals": [
+        {"id": "D_monitor", "signal": "Trade deal terms WITH decoupling reversal (tariff cut + NO China financial opening + yuan strength) -- watch for theme weakening, but does not by itself close the thesis."},
     ],
     
     "review_schedule": {
