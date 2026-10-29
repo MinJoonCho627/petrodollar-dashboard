@@ -1,0 +1,60 @@
+name: Fetch daily prices
+
+# Runs after the U.S. close on trading days and stores validated OHLC data
+# on the separate `data-prices` branch, so main keeps a clean code history.
+on:
+  schedule:
+    - cron: "30 22 * * 1-5"   # 22:30 UTC = 07:30 KST next morning
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "tools/fetch_prices.py"
+      - ".github/workflows/fetch_prices.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-prices
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: pip install "yfinance>=0.2.40"
+
+      - name: Fetch and validate
+        run: python tools/fetch_prices.py out
+
+      # Pull-request runs stop here: they only prove the fetch works.
+      - name: Publish to data-prices branch
+        if: github.event_name != 'pull_request'
+        run: |
+          git config user.name "price-bot"
+          git config user.email "price-bot@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin data-prices >/dev/null; then
+            git fetch origin data-prices
+            git worktree add data-wt origin/data-prices
+            git -C data-wt checkout -B data-prices
+          else
+            git worktree add --detach data-wt
+            git -C data-wt checkout --orphan data-prices
+            git -C data-wt rm -rf . >/dev/null
+          fi
+          cp out/prices_latest.csv out/fetch_meta.json data-wt/
+          cd data-wt
+          git add prices_latest.csv fetch_meta.json
+          if git diff --cached --quiet; then
+            echo "No change"
+          else
+            git commit -m "prices: $(jq -r .last_date fetch_meta.json)"
+            git push origin data-prices
+          fi
