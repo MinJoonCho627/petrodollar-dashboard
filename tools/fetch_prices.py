@@ -47,8 +47,11 @@ def main(out_dir: str) -> int:
 
     if problems:
         print("DATA CHECK FAILED - nothing written:")
-        for p in problems:
+        for p in problems[:20]:
             print("  -", p)
+            print(f"::error title=price check::{p}")  # visible as a GitHub annotation
+        if len(problems) > 20:
+            print(f"::error title=price check::...and {len(problems) - 20} more")
         return 1
 
     out = Path(out_dir)
