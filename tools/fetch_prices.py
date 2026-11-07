@@ -11,6 +11,7 @@ Today's bar is excluded until 16:30 ET so an unfinished bar is never used.
 """
 import csv
 import json
+import math
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -28,6 +29,8 @@ def load_tickers(repo_root: Path) -> list[str]:
 
 
 def valid(o: float, h: float, l: float, c: float) -> bool:
+    if not all(math.isfinite(x) for x in (o, h, l, c)):
+        return False
     return min(o, h, l, c) > 0 and h >= max(o, c) and l <= min(o, c) and h >= l
 
 
@@ -48,11 +51,17 @@ def main(out_dir: str) -> int:
             problems.append(f"{t}: no data")
             continue
         good, bad = [], []
+        last_bar_date = df.index[-1].date()
         for idx, r in df.iterrows():
             d = idx.date()
             if d == now_et.date() and not session_done:
                 continue
             o, h, l, c = (float(r[k]) for k in ("Open", "High", "Low", "Close"))
+            # A trailing bar with missing values is an unfinished bar the source has not
+            # filled yet: drop it (the previous close stays the latest) instead of failing.
+            if d == last_bar_date and not all(math.isfinite(x) for x in (o, h, l, c)):
+                skipped_rows.append(f"{t} {d}: unfinished bar (NaN) dropped")
+                continue
             if not valid(o, h, l, c):
                 bad.append(f"{t} {d}: OHLC inconsistent o={o:.4f} h={h:.4f} l={l:.4f} c={c:.4f}")
                 continue
@@ -68,6 +77,18 @@ def main(out_dir: str) -> int:
             problems.append(f"{t}: {len(bad)} of {len(good) + len(bad)} rows invalid")
         skipped_rows += bad
         rows += good
+
+    # Align every ticker on the same latest date, so the rule check never mixes
+    # one ticker's newest close with another's older one.
+    if not problems and rows:
+        last_by_ticker = {}
+        for r in rows:
+            last_by_ticker[r[0]] = max(last_by_ticker.get(r[0], ""), r[1])
+        common_last = min(last_by_ticker.values())
+        trimmed = [r for r in rows if r[1] > common_last]
+        if trimmed:
+            skipped_rows.append(f"aligned to common last date {common_last}: dropped {len(trimmed)} newer rows")
+            rows = [r for r in rows if r[1] <= common_last]
 
     if problems:
         print("DATA CHECK FAILED - nothing written:")
