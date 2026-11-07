@@ -7,9 +7,17 @@ CORE_PORTFOLIO = {
         "sector": "space",
         "thesis": "US space/satellite dominance in US-China tech frontier competition (AI imagery, defense/surveillance)",
         "hypothesis_link": "D-axis",  # Tech & frontier dominance
-        "signal_exposure": ["D"],  # US-China tech/space dominance
+        "signal_exposure": ["D"],  # US-China tech/space dominance (original classification, kept)
         "current_price": None,
         "failure_signal": "US loses space/satellite lead OR competitor breakthrough. NOTE: also held inside TSNF (double exposure to PL).",
+        # 2026-10-25 재정의 (하락 후 검토). 원래 D신호 분류는 유지하고 보유 근거만 추가 기록.
+        # 실제 매출 동력은 미국·유럽 정부 국방·정보 데이터 수요이며 미중 기술 지표와 직접 연결되지 않음.
+        "thesis_redefined_2026_10_25": "US/European government defense & intelligence data demand (NRO EOCL, NGA, DIU, NATO, German gov't)",
+        "review_triggers_2026_10_25": [
+            "Major government contract renewal failure or reduction (e.g., NRO EOCL)",
+            "Defense/intelligence revenue share visibly declining in filings",
+            "Price reaches ~$12.24 (-20% vs cost): thesis re-review trigger, NOT an automatic sell rule",
+        ],
     },
     "COPX": {
         "name": "Copper Miners ETF",

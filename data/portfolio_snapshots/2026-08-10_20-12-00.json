@@ -1,0 +1,23 @@
+{
+  "date": "2026-08-10",
+  "time": "20:12:00",
+  "timestamp": "2026-08-10T20:14:58.191315",
+  "core_return_%": 31.1,
+  "satellite_return_%": -0.43,
+  "total_return_%": 18.33,
+  "core_capital_share_%": 59.5,
+  "satellite_capital_share_%": 40.5,
+  "positions": {
+    "PL": 56.41,
+    "COPX": 41.05,
+    "TSES": 15.63,
+    "TSNF": 15.75,
+    "HOOD": 24.62,
+    "IONQ": -20.67,
+    "BMNR": 8.29,
+    "RXRX": -48.48
+  },
+  "reason": "모니터링",
+  "world_events": "Jul 24: Section 122 10% tariff expired; Section 301 replacement pending. Jul 29: FOMC held rates at 3.50-3.75% (9-3 vote, 3 dissenters wanted hike). Aug 5: IONQ Q2 revenue $80.1M (+287% YoY), beat consensus by 22.4% -- stock fell 4.29% on valuation concerns. Iran-US conflict: June 17 MOU collapsed, fighting resumed July, US cancelled major strikes Aug 1 citing imminent deal, Iran-Oman Hormuz route negotiations in final stages as of Aug 10. Aug 7: Nonfarm payrolls -23,000 (vs +87,500 expected) -- September rate hike probability dropped sharply. S&P 500 hit record 7,758 on Aug 7.",
+  "notes": "Portfolio recovered from July low (+4.09%) to +18.33% as market rallied. Satellite near breakeven (-0.43%). IONQ held as long-term satellite bet -- strong fundamentals but valuation-driven volatility confirmed. BMNR recovered significantly from -21% low. Core thesis signals unchanged. No trades executed this period."
+}

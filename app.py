@@ -288,10 +288,16 @@ with tab4:
 
         with st.expander(f"**{ticker}** ({status}) | Return: {live_return_txt}"):
             st.write(f"**Name:** {info['name']}")
-            st.write(f"**Thesis:** {info['thesis']}")
+            st.write(f"**Thesis (original):** {info['thesis']}")
+            if "thesis_redefined_2026_10_25" in info:
+                st.write(f"**Thesis (redefined 2026-10-25):** {info['thesis_redefined_2026_10_25']}")
             st.write(f"**Hypothesis Link:** {info['hypothesis_link']}")
             st.write(f"**Signal Exposure:** {', '.join(info['signal_exposure'])}")
             st.warning(f"**Failure Signal:** {info['failure_signal']}")
+            if "review_triggers_2026_10_25" in info:
+                st.write("**Review Triggers (2026-10-25):**")
+                for trig in info["review_triggers_2026_10_25"]:
+                    st.write(f"- {trig}")
     
     st.divider()
     

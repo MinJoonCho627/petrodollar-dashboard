@@ -1,0 +1,23 @@
+{
+  "date": "2026-09-25",
+  "time": "23:09:00",
+  "timestamp": "2026-09-25T23:12:06.594643",
+  "core_return_%": 19.82,
+  "satellite_return_%": 30.18,
+  "total_return_%": 24.02,
+  "core_capital_share_%": 59.5,
+  "satellite_capital_share_%": 40.5,
+  "positions": {
+    "PL": 16.22,
+    "COPX": 37.27,
+    "TSES": 16.85,
+    "TSNF": 17.35,
+    "HOOD": 58.4,
+    "IONQ": -20.34,
+    "BMNR": 57.59,
+    "RXRX": -39.68
+  },
+  "reason": "모니터링",
+  "world_events": "Aug 28: Fed Chair Warsh Jackson Hole speech signaled rate hike likely. Sep 16: FOMC raised rates 25bp to 3.75%-4.00% (12-0 unanimous). Dec hike possible per dot plot. 10yr Treasury at 5.16%. Iran-US war ongoing -- Hormuz remains restricted, US naval blockade halting Iranian oil exports (WSJ Sep 7). Brent crude at $105, WTI $93.62. Iran-Oman Hormuz route negotiations continuing but full reopening not agreed. Section 301 tariff replacement for Section 122 still pending finalization.",
+  "notes": "Quarterly review (target: Sep 18). Satellite overtook Core this period (Satellite +29.70% vs Core +19.93%) driven by HOOD +58% and BMNR +57% -- both thesis-free satellite bets. Core shift: PL retreated from Jun peak (+106% to +17%) while COPX +37% and TSNF +17% rose on F-axis energy thesis playing out. Structure rebalancing from PL momentum to energy/materials thesis. Rate hike environment pressuring growth stocks (PL, IONQ). Total +23.89%, failure condition not triggered."
+}
