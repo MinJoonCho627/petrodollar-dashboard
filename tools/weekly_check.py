@@ -7,6 +7,7 @@ prices csv 열: ticker,date,open,high,low,close (일봉)
 import csv
 import glob
 import json
+import math
 import os
 import sys
 from collections import defaultdict
@@ -23,6 +24,9 @@ def load_prices(path):
                 o, h, l, c = (float(r[k]) for k in ("open", "high", "low", "close"))
             except (ValueError, KeyError):
                 bad.append((r.get("ticker"), r.get("date"), "숫자 아님"))
+                continue
+            if not all(math.isfinite(x) for x in (o, h, l, c)):
+                bad.append((r.get("ticker"), r.get("date"), "NaN/inf (unfinished bar)"))
                 continue
             if min(o, h, l, c) <= 0 or h < max(o, c) or l > min(o, c) or h < l:
                 bad.append((r["ticker"], r["date"], f"OHLC 모순 o={o} h={h} l={l} c={c}"))
