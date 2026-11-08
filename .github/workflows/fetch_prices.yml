@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - "tools/fetch_prices.py"
+      - "tools/weekly_check.py"
       - ".github/workflows/fetch_prices.yml"
 
 permissions:
@@ -34,6 +35,17 @@ jobs:
       - name: Fetch and validate
         run: python tools/fetch_prices.py out
 
+      # Weekly-check numbers are computed here, inside GitHub, so the scheduled
+      # Claude run only reads the text result and never executes repo code.
+      - name: Run weekly check (deterministic)
+        run: |
+          set +e
+          python tools/weekly_check.py out/prices_latest.csv > out/weekly_check.txt 2>&1
+          code=$?
+          echo "" >> out/weekly_check.txt
+          echo "# exit_code=${code} prices_last_date=$(jq -r .last_date out/fetch_meta.json) generated_at_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> out/weekly_check.txt
+          cat out/weekly_check.txt
+
       # Pull-request runs stop here: they only prove the fetch works.
       - name: Publish to data-prices branch
         if: github.event_name != 'pull_request'
@@ -49,9 +61,9 @@ jobs:
             git -C data-wt checkout --orphan data-prices
             git -C data-wt rm -rf . >/dev/null
           fi
-          cp out/prices_latest.csv out/fetch_meta.json data-wt/
+          cp out/prices_latest.csv out/fetch_meta.json out/weekly_check.txt data-wt/
           cd data-wt
-          git add prices_latest.csv fetch_meta.json
+          git add prices_latest.csv fetch_meta.json weekly_check.txt
           if git diff --cached --quiet; then
             echo "No change"
           else
