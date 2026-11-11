@@ -21,4 +21,4 @@ RXRX | 2026-11-09 | 3.81 | -39.12% | 3.1% | 0.34 (8.8%) | -27.5% | 127
 
 벤치마크 QQQ: 2026-11-09 종가 679.35, 기간 수익률 -4.76%
 
-# exit_code=0 prices_last_date=2026-11-09 generated_at_utc=2026-11-10T04:14:50Z
+# exit_code=0 prices_last_date=2026-11-09 generated_at_utc=2026-11-11T02:04:13Z

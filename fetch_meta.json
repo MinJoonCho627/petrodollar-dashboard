@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-10T04:14:49+00:00",
+  "fetched_at_utc": "2026-11-11T02:04:13+00:00",
   "source": "yfinance 1.8.0",
   "period": "6mo",
   "tickers": [
@@ -15,6 +15,14 @@
     "QQQ"
   ],
   "rows": 1270,
-  "skipped_invalid_rows": [],
+  "skipped_invalid_rows": [
+    "BMNR 2026-11-10: unfinished bar (NaN) dropped",
+    "HOOD 2026-11-10: unfinished bar (NaN) dropped",
+    "IONQ 2026-11-10: unfinished bar (NaN) dropped",
+    "PL 2026-11-10: unfinished bar (NaN) dropped",
+    "RXRX 2026-11-10: unfinished bar (NaN) dropped",
+    "TSES 2026-11-10: unfinished bar (NaN) dropped",
+    "aligned to common last date 2026-11-09: dropped 3 newer rows"
+  ],
   "last_date": "2026-11-09"
 }
