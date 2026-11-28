@@ -1,5 +1,5 @@
 {
-  "fetched_at_utc": "2026-11-27T04:24:20+00:00",
+  "fetched_at_utc": "2026-11-28T04:04:21+00:00",
   "source": "yfinance 1.8.0",
   "period": "6mo",
   "tickers": [
@@ -14,7 +14,9 @@
     "SPY",
     "QQQ"
   ],
-  "rows": 1290,
-  "skipped_invalid_rows": [],
-  "last_date": "2026-11-25"
+  "rows": 1280,
+  "skipped_invalid_rows": [
+    "TSES 2026-05-27: OHLC inconsistent o=nan h=nan l=nan c=nan"
+  ],
+  "last_date": "2026-11-27"
 }
